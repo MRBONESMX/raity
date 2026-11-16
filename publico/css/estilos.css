@@ -730,7 +730,7 @@ textarea:focus-visible,
     left: 14px;
     right: 14px;
     max-width: 460px;
-    max-height: calc(100vh - 180px);
+    max-height: 75vh;
     overflow-y: auto;
     margin: 0 auto;
     background-color: #FFFFFF;
@@ -1145,23 +1145,31 @@ textarea:focus-visible,
         width: 380px;
     }
 
-    .lista-viajes {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-        align-items: stretch;
+    .lista-viajes::after {
+        content: "";
+        display: block;
+        clear: both;
     }
 
     .lista-viajes .tarjeta-viaje {
-        margin-bottom: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        float: left;
+        width: 48%;
+        margin-right: 4%;
+        margin-bottom: 16px;
+    }
+
+    .lista-viajes .tarjeta-viaje:nth-child(2n) {
+        margin-right: 0;
+    }
+
+    .lista-viajes .tarjeta-viaje:nth-child(2n+1) {
+        clear: left;
     }
 
     .lista-viajes .tarjeta-blanca {
-        grid-column: 1 / -1;
-        margin-bottom: 0;
+        float: none;
+        width: 100%;
+        clear: both;
     }
 }
 

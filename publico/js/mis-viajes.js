@@ -32,10 +32,28 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         const soloFecha = String(fechaTexto).substring(0, 10);
         const partes = soloFecha.split('-');
-        if (partes.length === 3) {
-            return partes[2] + '/' + partes[1] + '/' + partes[0];
+        if (partes.length !== 3) {
+            return soloFecha;
         }
-        return soloFecha;
+        const anio = Number(partes[0]);
+        const mes = Number(partes[1]);
+        const dia = Number(partes[2]);
+        const fechaCorta = partes[2] + '/' + partes[1] + '/' + partes[0];
+        const hoy = new Date();
+        const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        const fechaViaje = new Date(anio, mes - 1, dia);
+        const diferenciaDias = Math.round((inicioHoy.getTime() - fechaViaje.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diferenciaDias === 0) {
+            return 'Hoy (' + fechaCorta + ')';
+        }
+        if (diferenciaDias === 1) {
+            return 'Ayer (' + fechaCorta + ')';
+        }
+        if (diferenciaDias > 1) {
+            return 'Hace ' + diferenciaDias + ' días (' + fechaCorta + ')';
+        }
+        return fechaCorta;
     }
 
     function abrirModalCalificar(idViaje, nombreConductor) {

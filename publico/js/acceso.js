@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         if (primerError) {
-            mostrarMensaje('aviso-acceso', 'Revisa los campos marcados antes de iniciar sesión.');
+            mostrarMensaje('aviso-acceso', 'Error de verificación. Correo o contraseña incorrectos.');
             document.getElementById(primerError).focus();
             return;
         }
@@ -151,51 +151,63 @@ document.addEventListener('DOMContentLoaded', async function () {
         const aceptoTerminos = document.getElementById('registro-terminos').checked;
 
         let primerCampoError = null;
-        function registrarError(idCampo, mensaje) {
+        let faltaAlgunCampo = false;
+        let primerMensajeEspecifico = null;
+
+        function registrarError(idCampo, mensaje, esCampoVacio) {
             marcarErrorCampo(idCampo, mensaje);
             if (!primerCampoError) {
                 primerCampoError = idCampo;
             }
+            if (esCampoVacio) {
+                faltaAlgunCampo = true;
+            } else if (!primerMensajeEspecifico) {
+                primerMensajeEspecifico = mensaje;
+            }
         }
 
         if (!nombreCompleto) {
-            registrarError('registro-nombre', 'Escribe tu nombre completo.');
+            registrarError('registro-nombre', 'Escribe tu nombre completo.', true);
         }
 
         if (!correoInstitucional) {
-            registrarError('registro-correo', 'Escribe tu correo institucional de la UABCS.');
+            registrarError('registro-correo', 'Escribe tu correo institucional de la UABCS.', true);
         } else if (!correoInstitucional.toLowerCase().endsWith('@alu.uabcs.mx')) {
-            registrarError('registro-correo', 'El correo debe terminar en @alu.uabcs.mx.');
+            registrarError('registro-correo', 'El correo debe terminar en @alu.uabcs.mx.', false);
         }
 
         if (!numeroControl) {
-            registrarError('registro-control', 'Escribe tu número de control.');
+            registrarError('registro-control', 'Escribe tu número de control.', true);
         } else if (!/^[0-9]+$/.test(numeroControl)) {
-            registrarError('registro-control', 'Usa solo números en tu matrícula escolar.');
+            registrarError('registro-control', 'Usa solo números en tu matrícula escolar.', false);
         }
 
         if (!genero) {
-            registrarError('registro-genero', 'Selecciona una opción de género.');
+            registrarError('registro-genero', 'Selecciona una opción de género.', true);
         }
 
         if (!contrasena) {
-            registrarError('registro-contrasena', 'Escribe una contraseña.');
+            registrarError('registro-contrasena', 'Escribe una contraseña.', true);
         } else if (contrasena.length < 6) {
-            registrarError('registro-contrasena', 'La contraseña debe tener al menos 6 caracteres.');
+            registrarError('registro-contrasena', 'La contraseña debe tener al menos 6 caracteres.', false);
         }
 
         if (!confirmarContrasena) {
-            registrarError('registro-confirmar', 'Confirma tu contraseña.');
+            registrarError('registro-confirmar', 'Confirma tu contraseña.', true);
         } else if (contrasena && contrasena !== confirmarContrasena) {
-            registrarError('registro-confirmar', 'Las contraseñas no coinciden.');
+            registrarError('registro-confirmar', 'Las contraseñas no coinciden.', false);
         }
 
         if (!aceptoTerminos) {
-            registrarError('registro-terminos', 'Acepta los Términos y Condiciones para continuar.');
+            registrarError('registro-terminos', 'Acepta los Términos y Condiciones para continuar.', true);
         }
 
         if (primerCampoError) {
-            mostrarMensaje('aviso-acceso', 'Corrige los campos señalados para completar tu registro.');
+            if (faltaAlgunCampo) {
+                mostrarMensaje('aviso-acceso', 'Por favor, rellena todos los campos para continuar.');
+            } else {
+                mostrarMensaje('aviso-acceso', primerMensajeEspecifico);
+            }
             document.getElementById(primerCampoError).focus();
             return;
         }

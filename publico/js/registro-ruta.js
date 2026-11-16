@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
+    const pasoInstrucciones = document.getElementById('paso-instrucciones-ruta');
+    const botonComenzarRuta = document.getElementById('boton-comenzar-ruta');
     const pasoMapa = document.getElementById('paso-mapa-ruta');
     const pasoExito = document.getElementById('paso-exito-ruta');
     const campoNombreRuta = document.getElementById('ruta-nombre');
@@ -27,6 +29,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     setTimeout(function () {
         mapa.invalidateSize();
     }, 100);
+
+    if (botonComenzarRuta && pasoInstrucciones) {
+        botonComenzarRuta.addEventListener('click', function () {
+            pasoInstrucciones.classList.add('formulario-oculto');
+            pasoMapa.classList.remove('formulario-oculto');
+            setTimeout(function () {
+                mapa.invalidateSize();
+                mapa.setView([24.115, -110.32], 13);
+                campoNombreRuta.focus();
+            }, 100);
+        });
+    }
 
     function actualizarLineaYEstado() {
         if (lineaRuta) {
@@ -188,6 +202,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
+            if (pasoInstrucciones) {
+                pasoInstrucciones.classList.add('formulario-oculto');
+            }
             pasoMapa.classList.add('formulario-oculto');
             pasoExito.classList.remove('formulario-oculto');
         } catch (error) {

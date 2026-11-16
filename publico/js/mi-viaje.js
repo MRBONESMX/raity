@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         botonEliminar =
                             '<button type="button" class="boton-chico-rojo" data-id-reservacion="' +
                             pasajero.id_reservacion +
-                            '" data-nombre-pasajero="' + pasajero.nombre_completo + '">Retirar pasajero</button>';
+                            '" data-nombre-pasajero="' + pasajero.nombre_completo + '">Eliminar pasajero</button>';
                     }
 
                     listaPasajeros.innerHTML +=
@@ -120,9 +120,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                         const idReservacion = this.getAttribute('data-id-reservacion');
                         const nombrePasajero = this.getAttribute('data-nombre-pasajero') || 'este pasajero';
                         pedirConfirmacion(
-                            'Retirar pasajero',
-                            '¿Seguro que deseas retirar a ' + nombrePasajero + ' de este viaje? Su asiento volverá a estar disponible.',
-                            'Sí, retirar',
+                            'Eliminar pasajero',
+                            '¿Seguro que deseas eliminar a ' + nombrePasajero + ' de este viaje? Su asiento volverá a estar disponible.',
+                            'Sí, eliminar',
                             async function () {
                                 await cancelarReservacion(idReservacion, true, botonActual);
                             }

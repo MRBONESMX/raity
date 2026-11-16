@@ -12,10 +12,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     const enlaceDestacadaVer = document.getElementById('enlace-destacada-ver');
     const modalAvisos = document.getElementById('modal-avisos-explorar');
     const textoModalAvisos = document.getElementById('texto-modal-avisos');
+    const listaNotificaciones = document.getElementById('lista-notificaciones-explorar');
     const botonCerrarAvisos = document.getElementById('boton-cerrar-avisos');
 
     let totalDisponibles = 0;
     let totalMisActivos = 0;
+    let listaViajesDisponibles = [];
+    let listaViajesActivos = [];
     let lineaRutaActiva = null;
     let marcadorDestinoActivo = null;
     let numeroSolicitudRuta = 0;
@@ -124,6 +127,46 @@ document.addEventListener('DOMContentLoaded', async function () {
         textoModalAvisos.textContent =
             'Tienes ' + totalMisActivos + ' viaje(s) activo(s) en tu cuenta y hay ' +
             totalDisponibles + ' viaje(s) disponible(s) publicados en La Paz.';
+
+        if (listaNotificaciones) {
+            listaNotificaciones.innerHTML = '';
+
+            for (let i = 0; i < listaViajesActivos.length; i++) {
+                const viajeActivo = listaViajesActivos[i];
+                const tarjetaAviso = document.createElement('div');
+                tarjetaAviso.className = 'resumen-seleccion';
+                tarjetaAviso.textContent =
+                    'Viaje activo: ' + viajeActivo.origen + ' -> ' + viajeActivo.destino +
+                    ' a las ' + viajeActivo.hora_salida +
+                    ' (Pasajeros unidos: ' + viajeActivo.pasajeros_unidos + '/' + viajeActivo.lugares_totales + ')';
+                listaNotificaciones.appendChild(tarjetaAviso);
+            }
+
+            const limiteDisponibles = listaViajesDisponibles.length < 3 ? listaViajesDisponibles.length : 3;
+            for (let i = 0; i < limiteDisponibles; i++) {
+                const viajeDisp = listaViajesDisponibles[i];
+                const tarjetaDisp = document.createElement('div');
+                tarjetaDisp.className = 'resumen-seleccion';
+                tarjetaDisp.textContent =
+                    'Viaje disponible cerca de ti: ' + viajeDisp.origen + ' -> ' + viajeDisp.destino +
+                    ' con ' + viajeDisp.conductor_nombre +
+                    ' (Lugares: ' + viajeDisp.lugares_disponibles + ')';
+                listaNotificaciones.appendChild(tarjetaDisp);
+            }
+
+            if (listaViajesActivos.length === 0 && listaViajesDisponibles.length === 0) {
+                const avisoVacio = document.createElement('div');
+                avisoVacio.className = 'resumen-seleccion';
+                avisoVacio.textContent = 'No hay notificaciones nuevas de viajes por el momento.';
+                listaNotificaciones.appendChild(avisoVacio);
+            }
+
+            const notaPush = document.createElement('p');
+            notaPush.className = 'texto-ayuda';
+            notaPush.textContent = 'Nota: Las notificaciones push en segundo plano estarán disponibles en "Próximamente".';
+            listaNotificaciones.appendChild(notaPush);
+        }
+
         modalAvisos.classList.add('visible');
         botonCerrarAvisos.focus();
     });
@@ -154,6 +197,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const datos = await respuesta.json();
         const viajes = datos.viajes || [];
+        listaViajesDisponibles = viajes;
         totalDisponibles = viajes.length;
 
         if (viajes.length === 1) {
@@ -203,6 +247,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (respuestaMisViajes.ok) {
                 const datosMisViajes = await respuestaMisViajes.json();
                 const activos = datosMisViajes.viajes_actuales || [];
+                listaViajesActivos = activos;
                 totalMisActivos = activos.length;
             }
         } catch (errorSecundario) {
