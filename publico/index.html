@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#07B5D5">
+    <title>Raity - Iniciar sesión</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/imagenes/icono-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+    <div id="barra-sin-conexion" class="barra-sin-conexion">
+        Sin conexión a internet. Algunas funciones no están disponibles.
+    </div>
+
+    <div class="fondo-manchas">
+        <div class="mancha-azul-superior"></div>
+        <div class="mancha-azul-media"></div>
+        <div class="mancha-amarilla-inferior"></div>
+        <div class="mancha-amarilla-superior"></div>
+    </div>
+
+    <main class="contenedor-acceso">
+        <img src="/imagenes/logo_raity.jpg" alt="Logo de Raity" class="logo-marca-imagen">
+        <h1 class="logo-titulo">RAITY</h1>
+
+        <div class="tarjeta-blanca tarjeta-acceso">
+            <div class="pestanas-acceso">
+                <button type="button" id="tab-iniciar" class="boton-pestana activa">Iniciar sesión</button>
+                <button type="button" id="tab-registro" class="boton-pestana">Registrarte</button>
+            </div>
+
+            <div id="aviso-acceso" class="aviso-error"></div>
+
+            <form id="formulario-iniciar">
+                <div class="grupo-campo">
+                    <label for="acceso-identificador" class="etiqueta-campo">Correo institucional o número de control</label>
+                    <input type="text" id="acceso-identificador" class="campo-entrada" placeholder="sade_24@alu.uabcs.mx o 2028120">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="acceso-contrasena" class="etiqueta-campo">Contraseña</label>
+                    <input type="password" id="acceso-contrasena" class="campo-entrada" placeholder="Ingresa tu contraseña">
+                </div>
+
+                <label class="casilla-linea">
+                    <input type="checkbox" id="acceso-recordarme">
+                    <span>Recordarme</span>
+                </label>
+
+                <button type="submit" class="boton boton-principal">Iniciar sesión</button>
+            </form>
+
+            <form id="formulario-registro" class="formulario-oculto">
+                <div class="grupo-campo">
+                    <label for="registro-nombre" class="etiqueta-campo">Nombre completo</label>
+                    <input type="text" id="registro-nombre" class="campo-entrada" placeholder="Ej. Santiago D.">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="registro-correo" class="etiqueta-campo">Correo institucional</label>
+                    <input type="email" id="registro-correo" class="campo-entrada" placeholder="usuario@alu.uabcs.mx">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="registro-control" class="etiqueta-campo">Número de control</label>
+                    <input type="text" id="registro-control" class="campo-entrada" placeholder="Ej. 2028120">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="registro-genero" class="etiqueta-campo">Género</label>
+                    <select id="registro-genero" class="campo-entrada">
+                        <option value="">Selecciona una opción</option>
+                        <option value="Mujer">Mujer</option>
+                        <option value="Hombre">Hombre</option>
+                        <option value="Prefiero no decir">Prefiero no decir</option>
+                    </select>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="registro-contrasena" class="etiqueta-campo">Contraseña</label>
+                    <input type="password" id="registro-contrasena" class="campo-entrada" placeholder="Mínimo 6 caracteres">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="registro-confirmar" class="etiqueta-campo">Confirmar contraseña</label>
+                    <input type="password" id="registro-confirmar" class="campo-entrada" placeholder="Repite tu contraseña">
+                </div>
+
+                <label class="casilla-linea">
+                    <input type="checkbox" id="registro-terminos">
+                    <span>Acepto los <a href="#" id="enlace-terminos">Términos y Condiciones</a></span>
+                </label>
+
+                <button type="submit" class="boton boton-principal">Registrarte</button>
+            </form>
+        </div>
+    </main>
+
+    <div id="modal-terminos" class="modal-fondo">
+        <div class="modal-caja">
+            <h3 class="modal-titulo">Términos y Aviso de Privacidad</h3>
+            <p class="modal-texto">
+                Raity es una plataforma académica para estudiantes activos de la UABCS con correo @alu.uabcs.mx.
+                Tus datos se usan únicamente para coordinar viajes compartidos dentro de La Paz bajo normas de respeto y seguridad.
+            </p>
+            <button type="button" id="boton-cerrar-terminos" class="boton boton-principal">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="/js/comun.js"></script>
+    <script src="/js/acceso.js"></script>
+    <script src="/js/registrar-sw.js"></script>
+</body>
+</html>

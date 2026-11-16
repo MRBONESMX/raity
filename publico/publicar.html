@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#07B5D5">
+    <title>Raity - Publicar un Viaje</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/imagenes/icono-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+    <div id="barra-sin-conexion" class="barra-sin-conexion">
+        Sin conexión a internet. Algunas funciones no están disponibles.
+    </div>
+
+    <div class="fondo-manchas">
+        <div class="mancha-azul-superior"></div>
+        <div class="mancha-azul-media"></div>
+        <div class="mancha-amarilla-inferior"></div>
+    </div>
+
+    <main class="contenedor-principal">
+        <div class="encabezado-pagina">
+            <h1 class="titulo-pagina">Publicar un Viaje</h1>
+        </div>
+
+        <div id="aviso-publicar" class="aviso-error"></div>
+
+        <div id="caja-requisitos-publicar" class="tarjeta-blanca texto-centro formulario-oculto">
+            <p id="texto-requisitos-publicar" class="margen-abajo"></p>
+            <a id="enlace-requisitos-publicar" href="/registro-vehiculo.html" class="boton boton-principal">Registrar ahora</a>
+        </div>
+
+        <form id="formulario-publicar" class="tarjeta-blanca formulario-oculto">
+            <div class="grupo-campo">
+                <label for="publicar-origen" class="etiqueta-campo">Origen / Punto de salida</label>
+                <input type="text" id="publicar-origen" class="campo-entrada" placeholder="Ej. Santa Fe">
+            </div>
+
+            <div class="grupo-campo">
+                <label for="publicar-destino" class="etiqueta-campo">Destino</label>
+                <input type="text" id="publicar-destino" class="campo-entrada" placeholder="Ej. Ingeniería en Pesquerías">
+            </div>
+
+            <div class="fila-dos-campos">
+                <div class="columna-mitad">
+                    <label for="publicar-hora" class="etiqueta-campo">Hora de salida</label>
+                    <input type="text" id="publicar-hora" class="campo-entrada" placeholder="6:30 AM">
+                </div>
+                <div class="columna-mitad-derecha">
+                    <label for="publicar-asientos" class="etiqueta-campo">Asientos disponibles</label>
+                    <select id="publicar-asientos" class="campo-entrada">
+                        <option value="1">1 Asiento</option>
+                        <option value="2">2 Asientos</option>
+                        <option value="3">3 Asientos</option>
+                        <option value="4" selected>4 Asientos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="publicar-vehiculo" class="etiqueta-campo">Vehículo</label>
+                <select id="publicar-vehiculo" class="campo-entrada"></select>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="publicar-ruta" class="etiqueta-campo">Selección de ruta guardada</label>
+                <select id="publicar-ruta" class="campo-entrada"></select>
+            </div>
+
+            <div id="mapa-previa-publicar" class="mapa-detalle"></div>
+
+            <div id="caja-raity-violeta" class="caja-violeta-opcion">
+                <label class="casilla-linea">
+                    <input type="checkbox" id="publicar-violeta">
+                    <span>
+                        Publicar como Raity Violeta
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#A754F5">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </span>
+                </label>
+                <p id="nota-raity-violeta" class="texto-ayuda">
+                    Exclusivo para conductoras mujeres y pasajeras estudiantes de la UABCS.
+                </p>
+            </div>
+
+            <button type="submit" class="boton boton-principal">Publicar Raite</button>
+        </form>
+    </main>
+
+    <nav class="barra-navegacion">
+        <a href="/explorar.html" class="enlace-nav">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+            </svg>
+            <span>Explorar</span>
+        </a>
+        <a href="/buscar.html" class="enlace-nav">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span>Buscar</span>
+        </a>
+        <a href="/publicar.html" class="boton-publicar-central" aria-label="Publicar viaje">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </a>
+        <a href="/mis-viajes.html" class="enlace-nav">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 11l2-5h10l2 5"/>
+                <rect x="3" y="11" width="18" height="6" rx="2"/>
+                <circle cx="7" cy="17" r="2"/>
+                <circle cx="17" cy="17" r="2"/>
+            </svg>
+            <span>Viajes</span>
+        </a>
+        <a href="/perfil.html" class="enlace-nav">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+            </svg>
+            <span>Perfil</span>
+        </a>
+    </nav>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/comun.js"></script>
+    <script src="/js/publicar.js"></script>
+    <script src="/js/registrar-sw.js"></script>
+</body>
+</html>

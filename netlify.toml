@@ -1,0 +1,22 @@
+"$schema" = "https://open-api.netlify.com/netlify.schema.json"
+
+[build]
+  publish = "publico"
+  command = "npm install && cd servidor && npm install"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = ["base-de-datos/*.sql", "servidor/subidas/*"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/subidas/*"
+  to = "/.netlify/functions/api/subidas/:splat"
+  status = 200
+  force = true

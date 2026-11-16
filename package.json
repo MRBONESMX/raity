@@ -1,0 +1,12 @@
+{
+  "name": "raity",
+  "version": "1.0.0",
+  "description": "PWA de viajes compartidos para estudiantes de la UABCS",
+  "scripts": {
+    "start": "node servidor/servidor.js"
+  },
+  "dependencies": {
+    "@netlify/database": "^1.0.0",
+    "serverless-http": "^3.2.0"
+  }
+}
