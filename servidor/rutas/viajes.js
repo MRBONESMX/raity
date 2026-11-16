@@ -101,7 +101,13 @@ enrutador.get('/mis-viajes', async function (peticion, respuesta) {
                 viajes.hora_salida,
                 viajes.es_violeta,
                 viajes.estado,
-                usuarios.nombre_completo AS conductor_nombre
+                usuarios.nombre_completo AS conductor_nombre,
+                EXISTS (
+                    SELECT 1
+                    FROM calificaciones
+                    WHERE calificaciones.id_viaje = viajes.id
+                      AND calificaciones.id_quien_califica = $1
+                ) AS ya_calificado
             FROM viajes
             JOIN usuarios ON viajes.id_conductor = usuarios.id
             LEFT JOIN reservaciones ON reservaciones.id_viaje = viajes.id AND reservaciones.id_pasajero = $1 AND reservaciones.estado = 'activa'
@@ -352,6 +358,113 @@ enrutador.put('/:id/cancelar', async function (peticion, respuesta) {
     } catch (error) {
         console.error('Error al cancelar viaje:', error);
         respuesta.status(500).json({ mensaje: 'Error interno al cancelar el viaje.' });
+    }
+});
+
+enrutador.post('/:id/calificar', async function (peticion, respuesta) {
+    try {
+        const idUsuario = peticion.session.usuario.id;
+        const idViaje = parseInt(peticion.params.id, 10);
+        const puntuacion = parseInt(peticion.body.puntuacion, 10);
+        const comentario = peticion.body.comentario ? String(peticion.body.comentario).trim() : '';
+
+        if (isNaN(idViaje)) {
+            return respuesta.status(400).json({ mensaje: 'Identificador de viaje no válido.' });
+        }
+
+        if (isNaN(puntuacion) || puntuacion < 1 || puntuacion > 5) {
+            return respuesta.status(400).json({ mensaje: 'Selecciona una calificación válida entre 1 y 5 estrellas.' });
+        }
+
+        const consultaViaje = await pool.query(
+            'SELECT id, id_conductor, estado FROM viajes WHERE id = $1',
+            [idViaje]
+        );
+
+        if (consultaViaje.rows.length === 0) {
+            return respuesta.status(404).json({ mensaje: 'Viaje no encontrado.' });
+        }
+
+        const viaje = consultaViaje.rows[0];
+        if (viaje.id_conductor === idUsuario) {
+            return respuesta.status(400).json({ mensaje: 'No puedes calificar tu propio viaje como conductor.' });
+        }
+
+        const consultaParticipacion = await pool.query(
+            "SELECT id FROM reservaciones WHERE id_viaje = $1 AND id_pasajero = $2 AND estado = 'activa'",
+            [idViaje, idUsuario]
+        );
+
+        if (consultaParticipacion.rows.length === 0) {
+            return respuesta.status(403).json({ mensaje: 'Solo los pasajeros de este viaje pueden calificar al conductor.' });
+        }
+
+        const calificacionPrevia = await pool.query(
+            'SELECT id FROM calificaciones WHERE id_viaje = $1 AND id_quien_califica = $2 AND id_calificado = $3',
+            [idViaje, idUsuario, viaje.id_conductor]
+        );
+
+        if (calificacionPrevia.rows.length > 0) {
+            return respuesta.status(400).json({ mensaje: 'Ya enviaste una calificación para este viaje.' });
+        }
+
+        await pool.query(
+            'INSERT INTO calificaciones (id_viaje, id_quien_califica, id_calificado, puntuacion, comentario) VALUES ($1, $2, $3, $4, $5)',
+            [idViaje, idUsuario, viaje.id_conductor, puntuacion, comentario]
+        );
+
+        respuesta.status(201).json({ mensaje: 'Calificación guardada correctamente.' });
+    } catch (error) {
+        console.error('Error al calificar viaje:', error);
+        respuesta.status(500).json({ mensaje: 'Error interno al guardar la calificación.' });
+    }
+});
+
+enrutador.post('/:id/reportar', async function (peticion, respuesta) {
+    try {
+        const idUsuario = peticion.session.usuario.id;
+        const idViaje = parseInt(peticion.params.id, 10);
+        const motivo = peticion.body.motivo ? String(peticion.body.motivo).trim() : '';
+
+        if (isNaN(idViaje)) {
+            return respuesta.status(400).json({ mensaje: 'Identificador de viaje no válido.' });
+        }
+
+        if (motivo.length < 3) {
+            return respuesta.status(400).json({ mensaje: 'Escribe o selecciona el motivo del reporte.' });
+        }
+
+        const consultaViaje = await pool.query(
+            'SELECT id, id_conductor FROM viajes WHERE id = $1',
+            [idViaje]
+        );
+
+        if (consultaViaje.rows.length === 0) {
+            return respuesta.status(404).json({ mensaje: 'Viaje no encontrado.' });
+        }
+
+        const viaje = consultaViaje.rows[0];
+        if (viaje.id_conductor !== idUsuario) {
+            const consultaParticipacion = await pool.query(
+                "SELECT id FROM reservaciones WHERE id_viaje = $1 AND id_pasajero = $2 AND estado = 'activa'",
+                [idViaje, idUsuario]
+            );
+            if (consultaParticipacion.rows.length === 0) {
+                return respuesta.status(403).json({ mensaje: 'Solo los participantes pueden reportar este viaje.' });
+            }
+        }
+
+        await pool.query(
+            'INSERT INTO reportes (id_viaje, id_quien_reporta, motivo) VALUES ($1, $2, $3)',
+            [idViaje, idUsuario, motivo]
+        );
+
+        respuesta.status(201).json({
+            mensaje: 'Reporte enviado correctamente. El equipo de Raity lo revisará.'
+        });
+    } catch (error) {
+        console.error('Error al enviar reporte:', error);
+        respuesta.status(500).json({ mensaje: 'Error interno al enviar el reporte.' });
     }
 });
 

@@ -10,16 +10,27 @@ html, body {
     color: #000000;
     min-height: 100vh;
     font-size: 16px;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 a {
-    color: #07B5D5;
+    color: #00667A;
     text-decoration: none;
 }
 
-button, input, select {
+button, input, select, textarea {
     font-family: 'Hammersmith One', sans-serif;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid #004D61;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(5, 122, 145, 0.3);
 }
 
 .fondo-manchas {
@@ -79,7 +90,7 @@ button, input, select {
 
 .barra-sin-conexion {
     display: none;
-    background-color: #D5070A;
+    background-color: #B91C1C;
     color: #FFFFFF;
     text-align: center;
     padding: 8px 12px;
@@ -99,12 +110,12 @@ button, input, select {
     width: 100%;
     max-width: 460px;
     margin: 0 auto;
-    padding: 20px 16px 100px 16px;
+    padding: 20px 16px 104px 16px;
 }
 
 .contenedor-acceso {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     margin: 0 auto;
     padding: 36px 20px 40px 20px;
 }
@@ -113,7 +124,7 @@ button, input, select {
     text-align: center;
     font-size: 42px;
     letter-spacing: 2px;
-    color: #07B5D5;
+    color: #00667A;
     margin-bottom: 18px;
 }
 
@@ -126,57 +137,59 @@ button, input, select {
 }
 
 .pestanas-acceso {
+    display: flex;
+    gap: 6px;
     background-color: #E7F7FB;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 16px;
     padding: 4px;
     margin-bottom: 20px;
-    overflow: hidden;
 }
 
 .boton-pestana {
-    display: block;
-    float: left;
-    width: 50%;
+    flex: 1;
+    min-height: 44px;
     padding: 10px 8px;
     border: none;
     border-radius: 12px;
     background-color: transparent;
-    color: #07B5D5;
+    color: #00667A;
     font-size: 15px;
     cursor: pointer;
     text-align: center;
 }
 
 .boton-pestana.activa {
-    background-color: #07B5D5;
+    background-color: #057A91;
     color: #FFFFFF;
 }
 
 .tarjeta-blanca {
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 18px;
-    padding: 16px;
+    padding: 18px;
     margin-bottom: 16px;
 }
 
 .tarjeta-viaje {
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 18px;
-    padding: 16px;
+    padding: 18px;
     margin-bottom: 16px;
 }
 
 .tarjeta-violeta {
-    border-color: #A754F5;
+    border-color: #7E22CE;
 }
 
 .encabezado-pagina {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
     margin-bottom: 16px;
 }
 
@@ -185,132 +198,199 @@ button, input, select {
     color: #000000;
 }
 
+.subtitulo-pagina {
+    font-size: 18px;
+    color: #000000;
+    margin-bottom: 12px;
+}
+
 .enlace-regresar {
     display: inline-flex;
     align-items: center;
+    min-height: 44px;
+    padding: 6px 10px 6px 4px;
     color: #000000;
-    font-size: 20px;
+    font-size: 18px;
+    border-radius: 10px;
     margin-bottom: 14px;
 }
 
 .enlace-regresar svg {
     margin-right: 8px;
+    flex-shrink: 0;
 }
 
 .grupo-campo {
-    margin-bottom: 14px;
+    margin-bottom: 18px;
 }
 
 .etiqueta-campo {
     display: block;
     font-size: 13px;
-    color: #7E7E7E;
-    margin-bottom: 5px;
+    color: #4A4A4A;
+    margin-bottom: 6px;
     text-transform: uppercase;
 }
 
 .campo-entrada {
     width: 100%;
-    padding: 12px 14px;
-    border: 2px solid #07B5D5;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 2px solid #057A91;
     border-radius: 14px;
     background-color: #FFFFFF;
     color: #000000;
     font-size: 15px;
-    outline: none;
 }
 
 .campo-entrada:focus {
-    border-color: #31B8E2;
+    border-color: #004D61;
 }
 
 .campo-entrada.campo-error {
-    border-color: #D5070A;
+    border-color: #B91C1C;
+    background-color: #FFF5F5;
+}
+
+.campo-textarea {
+    min-height: 92px;
+    resize: vertical;
+}
+
+.texto-error-campo {
+    color: #A91518;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+    text-align: left;
 }
 
 .fila-dos-campos {
-    overflow: hidden;
-    margin-bottom: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
 }
 
-.columna-mitad {
-    float: left;
-    width: 48%;
-}
-
+.columna-mitad,
 .columna-mitad-derecha {
-    float: right;
-    width: 48%;
+    flex: 1 1 170px;
+    width: auto;
 }
 
 .casilla-linea {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    min-height: 44px;
+    margin-bottom: 12px;
     font-size: 14px;
     color: #000000;
     cursor: pointer;
+    padding: 4px 0;
 }
 
 .casilla-linea input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     margin-right: 10px;
-    accent-color: #07B5D5;
+    accent-color: #057A91;
+    flex-shrink: 0;
+}
+
+.fila-terminos {
+    margin-bottom: 16px;
+}
+
+.fila-terminos .casilla-linea {
+    margin-bottom: 4px;
+}
+
+.enlace-boton-texto {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 4px;
+    background: transparent;
+    border: none;
+    color: #00667A;
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 .caja-violeta-opcion {
     background-color: #F7EEFF;
-    border: 2px solid #A754F5;
+    border: 2px solid #7E22CE;
     border-radius: 14px;
-    padding: 12px;
-    margin-bottom: 16px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
 }
 
 .caja-violeta-opcion input[type="checkbox"] {
-    accent-color: #A754F5;
+    accent-color: #6B21A8;
 }
 
 .texto-ayuda {
     font-size: 13px;
-    color: #7E7E7E;
-    margin-top: 4px;
+    color: #4A4A4A;
+    margin-top: 5px;
+    text-align: left;
+}
+
+.tarjeta-blanca.texto-centro .texto-ayuda,
+.tarjeta-perfil-centro .texto-ayuda {
+    text-align: center;
 }
 
 .aviso-error {
     display: none;
-    background-color: #FADBD8;
-    border: 2px solid #EA5656;
-    color: #A93226;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #FDECEC;
+    border: 2px solid #B91C1C;
+    color: #7F1D1D;
     border-radius: 14px;
     padding: 12px 14px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     font-size: 14px;
-    text-align: center;
+    text-align: left;
 }
 
 .aviso-exito {
     display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     background-color: #D9F7EA;
-    border: 2px solid #16A672;
-    color: #0D6E4B;
+    border: 2px solid #0F7652;
+    color: #0B5D3E;
     border-radius: 14px;
     padding: 12px 14px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     font-size: 14px;
-    text-align: center;
+    text-align: left;
+}
+
+.aviso-error svg,
+.aviso-exito svg {
+    flex-shrink: 0;
 }
 
 .aviso-error.visible,
 .aviso-exito.visible {
-    display: block;
+    display: flex;
 }
 
 .boton {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 13px 16px;
-    border: none;
+    min-height: 44px;
+    padding: 11px 16px;
+    border: 2px solid transparent;
     border-radius: 14px;
     font-size: 16px;
     cursor: pointer;
@@ -318,69 +398,89 @@ button, input, select {
     margin-bottom: 10px;
 }
 
-.boton:hover {
+.boton:last-child {
+    margin-bottom: 0;
+}
+
+.boton:hover:not(:disabled) {
     opacity: 0.92;
 }
 
+.boton:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
 .boton-principal {
-    background-color: #07B5D5;
+    background-color: #057A91;
     color: #FFFFFF;
 }
 
+.boton-secundario {
+    background-color: #FFFFFF;
+    color: #00667A;
+    border: 2px solid #057A91;
+}
+
 .boton-violeta {
-    background-color: #A754F5;
+    background-color: #6B21A8;
     color: #FFFFFF;
 }
 
 .boton-verde {
-    background-color: #16A672;
+    background-color: #0F7652;
     color: #FFFFFF;
 }
 
 .boton-amarillo {
     background-color: #F8EAAB;
-    color: #000000;
-    border: 2px solid #E2AD00;
+    color: #3D2E00;
+    border: 2px solid #B58900;
 }
 
-.boton-rojo {
-    background-color: #D5070A;
-    color: #FFFFFF;
-}
-
+.boton-rojo,
 .boton-rojo-suave {
-    background-color: #EA5656;
+    background-color: #B91C1C;
     color: #FFFFFF;
 }
 
 .boton-contorno-rojo {
     background-color: #FFFFFF;
-    color: #EA5656;
-    border: 2px solid #EA5656;
-    padding: 8px 12px;
+    color: #A91518;
+    border: 2px solid #B91C1C;
+    padding: 8px 14px;
     font-size: 14px;
-    display: inline-block;
+    display: inline-flex;
     width: auto;
+    min-height: 44px;
     margin-bottom: 0;
 }
 
 .boton-contorno-amarillo {
-    background-color: #FFFFFF;
-    color: #B58900;
-    border: 2px solid #E2AD00;
-    padding: 8px 12px;
+    background-color: #FFFBEB;
+    color: #5C4500;
+    border: 2px solid #D97706;
+    padding: 8px 14px;
     font-size: 14px;
-    display: inline-block;
+    display: inline-flex;
     width: auto;
+    min-height: 44px;
     margin-bottom: 0;
 }
 
+.boton-ancho-completo {
+    display: flex;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
 .boton-chico-rojo {
-    background-color: #EA5656;
+    background-color: #B91C1C;
     color: #FFFFFF;
     border: none;
     border-radius: 10px;
-    padding: 7px 12px;
+    min-height: 44px;
+    padding: 10px 14px;
     font-size: 13px;
     cursor: pointer;
 }
@@ -389,6 +489,8 @@ button, input, select {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
     margin-bottom: 10px;
 }
 
@@ -405,10 +507,11 @@ button, input, select {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background-color: #07B5D5;
+    background-color: #057A91;
     color: #FFFFFF;
     font-size: 17px;
     margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .avatar-grande {
@@ -426,7 +529,7 @@ button, input, select {
     right: -3px;
     width: 13px;
     height: 13px;
-    background-color: #16A672;
+    background-color: #0F7652;
     border: 2px solid #FFFFFF;
     border-radius: 50%;
 }
@@ -458,12 +561,14 @@ button, input, select {
 
 .insignia-verde {
     background-color: #D9F7EA;
-    color: #16A672;
+    color: #0B5D3E;
+    border: 1px solid #16A672;
 }
 
 .insignia-violeta {
     background-color: #F2E4FF;
-    color: #A754F5;
+    color: #5A189A;
+    border: 1px solid #A754F5;
 }
 
 .insignia-violeta svg {
@@ -472,7 +577,8 @@ button, input, select {
 
 .insignia-gris {
     background-color: #EEEEEE;
-    color: #7E7E7E;
+    color: #444444;
+    border: 1px solid #999999;
 }
 
 .ruta-viaje {
@@ -485,7 +591,7 @@ button, input, select {
     display: flex;
     align-items: center;
     font-size: 14px;
-    color: #7E7E7E;
+    color: #4A4A4A;
     margin-bottom: 6px;
 }
 
@@ -498,6 +604,8 @@ button, input, select {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
     margin: 8px 0 10px 0;
 }
 
@@ -510,7 +618,7 @@ button, input, select {
     width: 100%;
     height: 140px;
     border-radius: 14px;
-    border: 1px solid #D4EFF5;
+    border: 1px solid #057A91;
     z-index: 1;
 }
 
@@ -518,16 +626,16 @@ button, input, select {
     width: 100%;
     height: 220px;
     border-radius: 14px;
-    border: 2px solid #07B5D5;
-    margin-bottom: 14px;
+    border: 2px solid #057A91;
+    margin-bottom: 16px;
     z-index: 1;
 }
 
 .mapa-grabacion {
     width: 100%;
-    height: 300px;
+    height: 280px;
     border-radius: 14px;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     margin-bottom: 14px;
     z-index: 1;
 }
@@ -537,8 +645,8 @@ button, input, select {
     bottom: 8px;
     right: 8px;
     background-color: #FFFFFF;
-    color: #07B5D5;
-    border: 1px solid #07B5D5;
+    color: #00667A;
+    border: 1px solid #057A91;
     border-radius: 8px;
     padding: 3px 8px;
     font-size: 11px;
@@ -568,12 +676,13 @@ button, input, select {
 
 .tarjeta-saludo {
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 16px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     pointer-events: auto;
     max-width: 460px;
     margin: 0 auto 8px auto;
@@ -586,23 +695,26 @@ button, input, select {
 
 .boton-campana {
     background-color: #E7F7FB;
-    border: 1px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 12px;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .chip-cercanos {
     display: inline-block;
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
-    color: #07B5D5;
+    border: 2px solid #057A91;
+    color: #00667A;
     border-radius: 20px;
-    padding: 5px 14px;
+    padding: 6px 14px;
     font-size: 13px;
     pointer-events: auto;
 }
@@ -614,13 +726,15 @@ button, input, select {
 
 .tarjeta-destacada {
     position: fixed;
-    bottom: 88px;
+    bottom: 84px;
     left: 14px;
     right: 14px;
     max-width: 460px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
     margin: 0 auto;
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 18px;
     padding: 14px;
     z-index: 500;
@@ -628,31 +742,59 @@ button, input, select {
 
 .boton-cerrar-tarjeta {
     background-color: transparent;
-    border: none;
-    color: #7E7E7E;
-    font-size: 18px;
+    border: 1px solid #4A4A4A;
+    color: #4A4A4A;
+    font-size: 16px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
     cursor: pointer;
 }
 
 .caja-busqueda {
     position: relative;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .caja-busqueda svg {
     position: absolute;
     left: 14px;
-    top: 13px;
+    top: 12px;
+    pointer-events: none;
 }
 
 .campo-busqueda {
     padding-left: 42px;
 }
 
-.lista-viajes::after {
-    content: "";
-    display: table;
-    clear: both;
+.barra-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.chip-filtro {
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 2px solid #057A91;
+    border-radius: 20px;
+    background-color: #FFFFFF;
+    color: #00667A;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.chip-filtro.activo {
+    background-color: #057A91;
+    color: #FFFFFF;
+}
+
+.lista-viajes {
+    display: block;
 }
 
 .tarjeta-perfil-centro {
@@ -661,7 +803,7 @@ button, input, select {
 
 .dato-perfil-correo {
     font-size: 14px;
-    color: #7E7E7E;
+    color: #4A4A4A;
     margin-top: 4px;
 }
 
@@ -672,54 +814,65 @@ button, input, select {
 }
 
 .caja-estadisticas {
-    overflow: hidden;
+    display: flex;
+    gap: 12px;
     margin-bottom: 16px;
 }
 
 .cuadro-estadistica {
-    float: left;
-    width: 48%;
+    flex: 1;
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 16px;
     padding: 14px 10px;
     text-align: center;
 }
 
-.cuadro-estadistica-derecha {
-    float: right;
-    width: 48%;
-}
-
 .numero-estadistica {
     font-size: 26px;
-    color: #16A672;
+    color: #0F7652;
 }
 
 .etiqueta-estadistica {
     font-size: 12px;
-    color: #7E7E7E;
+    color: #4A4A4A;
 }
 
 .area-subida {
+    position: relative;
     display: block;
-    border: 2px dashed #07B5D5;
+    border: 2px dashed #057A91;
     border-radius: 16px;
     background-color: #FFFFFF;
     padding: 18px 14px;
     text-align: center;
     cursor: pointer;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
+}
+
+.area-subida:focus-within {
+    outline: 3px solid #004D61;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(5, 122, 145, 0.3);
+}
+
+.area-subida.campo-error {
+    border-color: #B91C1C;
+    background-color: #FFF5F5;
 }
 
 .area-subida input[type="file"] {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
 }
 
 .nombre-archivo-subido {
     display: block;
     font-size: 13px;
-    color: #16A672;
+    color: #0B5D3E;
     margin-top: 6px;
 }
 
@@ -727,8 +880,9 @@ button, input, select {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     padding: 10px 0;
-    border-bottom: 1px solid #E7F7FB;
+    border-bottom: 1px solid #D4EFF5;
 }
 
 .fila-pasajero:last-child {
@@ -739,7 +893,75 @@ button, input, select {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.fila-botones-modal {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.fila-botones-modal .boton {
+    flex: 1 1 120px;
+    margin-bottom: 0;
+}
+
+.fila-acciones-ruta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.fila-acciones-ruta .boton {
+    flex: 1 1 160px;
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+.leyenda-ruta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #000000;
+}
+
+.punto-leyenda {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.punto-salida {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #057A91;
+    display: inline-block;
+}
+
+.punto-destino {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #0F7652;
+    display: inline-block;
+}
+
+.resumen-seleccion {
+    background-color: #F4FBFE;
+    border: 1px solid #057A91;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #000000;
+    margin-bottom: 14px;
 }
 
 .barra-navegacion {
@@ -747,9 +969,9 @@ button, input, select {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    height: 74px;
     background-color: #FFFFFF;
-    border-top: 2px solid #D4EFF5;
+    border-top: 2px solid #057A91;
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -761,28 +983,51 @@ button, input, select {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #7E7E7E;
+    min-height: 44px;
+    min-width: 52px;
+    color: #4A4A4A;
     font-size: 11px;
     padding: 6px 10px;
+    border: 2px solid transparent;
     border-radius: 12px;
 }
 
 .enlace-nav.activo {
     background-color: #E7F7FB;
-    color: #07B5D5;
+    color: #00667A;
+    border: 2px solid #057A91;
 }
 
 .boton-publicar-central {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    min-height: 44px;
+    min-width: 54px;
+    color: #00667A;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 12px;
+}
+
+.circulo-publicar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background-color: #07B5D5;
+    background-color: #057A91;
     color: #FFFFFF;
-    margin-top: -24px;
-    border: 4px solid #FFFFFF;
+    margin-top: -18px;
+    margin-bottom: 2px;
+    border: 3px solid #FFFFFF;
+}
+
+.boton-publicar-central.activo {
+    background-color: #E7F7FB;
+    border: 2px solid #057A91;
 }
 
 .modal-fondo {
@@ -792,11 +1037,12 @@ button, input, select {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: rgba(0, 0, 0, 0.55);
     z-index: 3000;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .modal-fondo.visible {
@@ -805,18 +1051,20 @@ button, input, select {
 
 .modal-caja {
     background-color: #FFFFFF;
-    border: 2px solid #07B5D5;
+    border: 2px solid #057A91;
     border-radius: 18px;
     padding: 22px 18px;
-    max-width: 360px;
+    max-width: 380px;
+    max-height: 90vh;
+    overflow-y: auto;
     width: 100%;
     text-align: center;
 }
 
 .modal-titulo {
     font-size: 20px;
-    color: #07B5D5;
-    margin-bottom: 8px;
+    color: #00667A;
+    margin-bottom: 10px;
 }
 
 .modal-texto {
@@ -830,11 +1078,11 @@ button, input, select {
 }
 
 .margen-arriba {
-    margin-top: 12px;
+    margin-top: 14px;
 }
 
 .margen-abajo {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .formulario-oculto {
@@ -851,26 +1099,30 @@ button, input, select {
         flex-direction: column;
         justify-content: flex-start;
         padding-top: 24px;
+        padding-bottom: 24px;
         border-top: none;
-        border-right: 2px solid #D4EFF5;
+        border-right: 2px solid #057A91;
+        overflow-y: auto;
     }
 
-    .enlace-nav {
+    .enlace-nav,
+    .boton-publicar-central {
         width: 82px;
         margin-bottom: 14px;
         padding: 10px 6px;
         font-size: 12px;
     }
 
-    .boton-publicar-central {
-        margin-top: 6px;
-        margin-bottom: 18px;
-        width: 54px;
-        height: 54px;
+    .circulo-publicar {
+        margin-top: 0;
+        margin-bottom: 4px;
+        width: 44px;
+        height: 44px;
+        border: none;
     }
 
     .contenedor-principal {
-        max-width: 720px;
+        max-width: 740px;
         margin-left: 120px;
         margin-right: auto;
         padding: 28px 24px 40px 24px;
@@ -893,24 +1145,29 @@ button, input, select {
         width: 380px;
     }
 
+    .lista-viajes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: stretch;
+    }
+
     .lista-viajes .tarjeta-viaje {
-        float: left;
-        width: 48%;
-        margin-right: 4%;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
-    .lista-viajes .tarjeta-viaje:nth-child(2n) {
-        margin-right: 0;
-    }
-
-    .lista-viajes .tarjeta-viaje:nth-child(2n + 1) {
-        clear: left;
+    .lista-viajes .tarjeta-blanca {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
     }
 }
 
 @media screen and (min-width: 1024px) {
     .contenedor-principal {
-        max-width: 860px;
+        max-width: 880px;
         margin-left: auto;
         margin-right: auto;
         padding-left: 130px;
@@ -923,7 +1180,7 @@ button, input, select {
 
 @media screen and (min-width: 1200px) {
     .contenedor-principal {
-        max-width: 1020px;
+        max-width: 1040px;
         padding-left: 140px;
     }
 }

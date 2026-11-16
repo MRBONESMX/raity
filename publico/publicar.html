@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#07B5D5">
+    <meta name="theme-color" content="#057A91">
     <title>Raity - Publicar un Viaje</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/imagenes/icono-192.png">
@@ -29,14 +29,28 @@
             <h1 class="titulo-pagina">Publicar un Viaje</h1>
         </div>
 
+        <p id="publicar-cargando" class="texto-ayuda margen-abajo" role="status" aria-live="polite">Cargando tus vehículos y rutas...</p>
+
         <div id="aviso-publicar" class="aviso-error"></div>
 
         <div id="caja-requisitos-publicar" class="tarjeta-blanca texto-centro formulario-oculto">
             <p id="texto-requisitos-publicar" class="margen-abajo"></p>
             <a id="enlace-requisitos-publicar" href="/registro-vehiculo.html" class="boton boton-principal">Registrar ahora</a>
+            <a href="/explorar.html" class="boton boton-secundario">Volver a Explorar</a>
         </div>
 
-        <form id="formulario-publicar" class="tarjeta-blanca formulario-oculto">
+        <form id="formulario-publicar" class="tarjeta-blanca formulario-oculto" novalidate>
+            <div class="grupo-campo">
+                <label for="publicar-vehiculo" class="etiqueta-campo">Vehículo</label>
+                <select id="publicar-vehiculo" class="campo-entrada"></select>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="publicar-ruta" class="etiqueta-campo">Selección de ruta guardada</label>
+                <select id="publicar-ruta" class="campo-entrada"></select>
+                <p class="texto-ayuda">Al elegir una ruta guardada se completan automáticamente el origen y el destino.</p>
+            </div>
+
             <div class="grupo-campo">
                 <label for="publicar-origen" class="etiqueta-campo">Origen / Punto de salida</label>
                 <input type="text" id="publicar-origen" class="campo-entrada" placeholder="Ej. Santa Fe">
@@ -50,7 +64,39 @@
             <div class="fila-dos-campos">
                 <div class="columna-mitad">
                     <label for="publicar-hora" class="etiqueta-campo">Hora de salida</label>
-                    <input type="text" id="publicar-hora" class="campo-entrada" placeholder="6:30 AM">
+                    <select id="publicar-hora" class="campo-entrada">
+                        <option value="6:00 AM">6:00 AM</option>
+                        <option value="6:30 AM" selected>6:30 AM</option>
+                        <option value="7:00 AM">7:00 AM</option>
+                        <option value="7:30 AM">7:30 AM</option>
+                        <option value="8:00 AM">8:00 AM</option>
+                        <option value="8:30 AM">8:30 AM</option>
+                        <option value="9:00 AM">9:00 AM</option>
+                        <option value="9:30 AM">9:30 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="12:30 PM">12:30 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="1:30 PM">1:30 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
+                        <option value="2:30 PM">2:30 PM</option>
+                        <option value="3:00 PM">3:00 PM</option>
+                        <option value="3:30 PM">3:30 PM</option>
+                        <option value="4:00 PM">4:00 PM</option>
+                        <option value="4:30 PM">4:30 PM</option>
+                        <option value="5:00 PM">5:00 PM</option>
+                        <option value="5:30 PM">5:30 PM</option>
+                        <option value="6:00 PM">6:00 PM</option>
+                        <option value="6:30 PM">6:30 PM</option>
+                        <option value="7:00 PM">7:00 PM</option>
+                        <option value="7:30 PM">7:30 PM</option>
+                        <option value="8:00 PM">8:00 PM</option>
+                        <option value="8:30 PM">8:30 PM</option>
+                        <option value="9:00 PM">9:00 PM</option>
+                    </select>
                 </div>
                 <div class="columna-mitad-derecha">
                     <label for="publicar-asientos" class="etiqueta-campo">Asientos disponibles</label>
@@ -64,23 +110,16 @@
             </div>
 
             <div class="grupo-campo">
-                <label for="publicar-vehiculo" class="etiqueta-campo">Vehículo</label>
-                <select id="publicar-vehiculo" class="campo-entrada"></select>
+                <div id="mapa-previa-publicar" class="mapa-detalle" role="region" aria-label="Vista previa de la ruta seleccionada"></div>
+                <p class="texto-ayuda">El mapa muestra los puntos de salida y destino guardados en tu ruta.</p>
             </div>
-
-            <div class="grupo-campo">
-                <label for="publicar-ruta" class="etiqueta-campo">Selección de ruta guardada</label>
-                <select id="publicar-ruta" class="campo-entrada"></select>
-            </div>
-
-            <div id="mapa-previa-publicar" class="mapa-detalle"></div>
 
             <div id="caja-raity-violeta" class="caja-violeta-opcion">
                 <label class="casilla-linea">
                     <input type="checkbox" id="publicar-violeta">
                     <span>
                         Publicar como Raity Violeta
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#A754F5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#6B21A8" aria-hidden="true">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>
                     </span>
@@ -90,33 +129,37 @@
                 </p>
             </div>
 
-            <button type="submit" class="boton boton-principal">Publicar Raite</button>
+            <button type="submit" id="boton-publicar-viaje" class="boton boton-principal">Publicar Raite</button>
+            <a href="/explorar.html" class="boton boton-secundario">Cancelar y volver a Explorar</a>
         </form>
     </main>
 
-    <nav class="barra-navegacion">
+    <nav class="barra-navegacion" aria-label="Navegación principal">
         <a href="/explorar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
             </svg>
             <span>Explorar</span>
         </a>
         <a href="/buscar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>Buscar</span>
         </a>
-        <a href="/publicar.html" class="boton-publicar-central" aria-label="Publicar viaje">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+        <a href="/publicar.html" class="boton-publicar-central activo" aria-current="page">
+            <span class="circulo-publicar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </span>
+            <span>Publicar</span>
         </a>
         <a href="/mis-viajes.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 11l2-5h10l2 5"/>
                 <rect x="3" y="11" width="18" height="6" rx="2"/>
                 <circle cx="7" cy="17" r="2"/>
@@ -125,7 +168,7 @@
             <span>Viajes</span>
         </a>
         <a href="/perfil.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="8" r="4"/>
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
             </svg>

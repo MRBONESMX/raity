@@ -90,13 +90,21 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     selectRutas.addEventListener('change', actualizarMapaPerfil);
 
-    botonCerrarSesion.addEventListener('click', async function () {
-        try {
-            await fetch('/api/usuarios/cerrar-sesion', { method: 'POST' });
-        } catch (error) {
-            console.log('Error al cerrar sesión en servidor.');
-        }
-        localStorage.removeItem('raity_usuario');
-        window.location.href = '/index.html';
+    botonCerrarSesion.addEventListener('click', function () {
+        pedirConfirmacion(
+            'Cerrar sesión',
+            '¿Estás seguro de que quieres cerrar sesión en este dispositivo?',
+            'Sí, cerrar sesión',
+            async function () {
+                cambiarEstadoBoton(botonCerrarSesion, true, 'Cerrando sesión...');
+                try {
+                    await fetch('/api/usuarios/cerrar-sesion', { method: 'POST' });
+                } catch (error) {
+                    console.log('Error al cerrar sesión en servidor.');
+                }
+                localStorage.removeItem('raity_usuario');
+                window.location.href = '/index.html';
+            }
+        );
     });
 });

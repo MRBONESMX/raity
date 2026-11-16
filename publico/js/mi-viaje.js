@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
+    const textoCargando = document.getElementById('mi-viaje-cargando');
     const resumenViaje = document.getElementById('resumen-viaje');
     const conteoPasajeros = document.getElementById('conteo-pasajeros');
     const listaPasajeros = document.getElementById('lista-pasajeros');
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const respuesta = await fetch('/api/viajes/' + idViaje);
             const datos = await respuesta.json();
+            textoCargando.classList.add('formulario-oculto');
 
             if (!respuesta.ok) {
                 mostrarMensaje('aviso-mi-viaje', datos.mensaje);
@@ -42,12 +44,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const viaje = datos.viaje;
-            const pasajeros = datos.pasajeros;
+            const pasajeros = datos.pasajeros || [];
             const esConductor = datos.es_conductor;
             const idReservacionPropia = datos.id_reservacion_propia;
 
             if (viaje.es_violeta) {
                 resumenViaje.classList.add('tarjeta-violeta');
+            } else {
+                resumenViaje.classList.remove('tarjeta-violeta');
             }
 
             const claseEstado = viaje.estado === 'cancelado' ? 'insignia insignia-gris' : 'insignia insignia-verde';
@@ -93,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         botonEliminar =
                             '<button type="button" class="boton-chico-rojo" data-id-reservacion="' +
                             pasajero.id_reservacion +
-                            '">Eliminar pasajero</button>';
+                            '" data-nombre-pasajero="' + pasajero.nombre_completo + '">Retirar pasajero</button>';
                     }
 
                     listaPasajeros.innerHTML +=
@@ -111,9 +115,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 const botonesEliminar = listaPasajeros.querySelectorAll('button[data-id-reservacion]');
                 for (let i = 0; i < botonesEliminar.length; i++) {
-                    botonesEliminar[i].addEventListener('click', async function () {
+                    botonesEliminar[i].addEventListener('click', function () {
+                        const botonActual = this;
                         const idReservacion = this.getAttribute('data-id-reservacion');
-                        await cancelarReservacion(idReservacion, true);
+                        const nombrePasajero = this.getAttribute('data-nombre-pasajero') || 'este pasajero';
+                        pedirConfirmacion(
+                            'Retirar pasajero',
+                            '¿Seguro que deseas retirar a ' + nombrePasajero + ' de este viaje? Su asiento volverá a estar disponible.',
+                            'Sí, retirar',
+                            async function () {
+                                await cancelarReservacion(idReservacion, true, botonActual);
+                            }
+                        );
                     });
                 }
             }
@@ -140,36 +153,63 @@ document.addEventListener('DOMContentLoaded', async function () {
             const botonIniciar = document.getElementById('boton-iniciar-viaje');
             if (botonIniciar) {
                 botonIniciar.addEventListener('click', function () {
-                    cambiarEstadoViaje('iniciar', false);
+                    cambiarEstadoViaje('iniciar', false, botonIniciar, 'Iniciando viaje...');
                 });
             }
 
             const botonTerminar = document.getElementById('boton-terminar-viaje');
             if (botonTerminar) {
                 botonTerminar.addEventListener('click', function () {
-                    cambiarEstadoViaje('terminar', true);
+                    pedirConfirmacion(
+                        'Terminar viaje',
+                        '¿Confirmas que el recorrido ya concluyó? El viaje pasará a tu historial.',
+                        'Sí, terminar viaje',
+                        async function () {
+                            await cambiarEstadoViaje('terminar', true, botonTerminar, 'Terminando viaje...');
+                        },
+                        false
+                    );
                 });
             }
 
             const botonCancelar = document.getElementById('boton-cancelar-viaje');
             if (botonCancelar) {
                 botonCancelar.addEventListener('click', function () {
-                    cambiarEstadoViaje('cancelar', true);
+                    pedirConfirmacion(
+                        'Cancelar viaje',
+                        '¿Estás seguro de cancelar este viaje? Se avisará a los pasajeros y sus reservaciones se liberarán.',
+                        'Sí, cancelar viaje',
+                        async function () {
+                            await cambiarEstadoViaje('cancelar', true, botonCancelar, 'Cancelando viaje...');
+                        }
+                    );
                 });
             }
 
             const botonSalir = document.getElementById('boton-salir-viaje');
             if (botonSalir) {
                 botonSalir.addEventListener('click', function () {
-                    cancelarReservacion(idReservacionPropia, false);
+                    pedirConfirmacion(
+                        'Salir del viaje',
+                        '¿Seguro que quieres cancelar tu asiento en este viaje?',
+                        'Sí, salir del viaje',
+                        async function () {
+                            await cancelarReservacion(idReservacionPropia, false, botonSalir);
+                        }
+                    );
                 });
             }
         } catch (error) {
+            textoCargando.classList.add('formulario-oculto');
             mostrarMensaje('aviso-mi-viaje', 'Error de conexión al cargar los detalles del viaje.');
         }
     }
 
-    async function cambiarEstadoViaje(accion, redirigir) {
+    async function cambiarEstadoViaje(accion, redirigir, botonAccion, textoCargandoBoton) {
+        ocultarMensaje('aviso-mi-viaje');
+        ocultarMensaje('exito-mi-viaje');
+        cambiarEstadoBoton(botonAccion, true, textoCargandoBoton);
+
         try {
             const respuesta = await fetch('/api/viajes/' + idViaje + '/' + accion, {
                 method: 'PUT'
@@ -178,20 +218,27 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (!respuesta.ok) {
                 mostrarMensaje('aviso-mi-viaje', datos.mensaje);
+                cambiarEstadoBoton(botonAccion, false);
                 return;
             }
 
             if (redirigir) {
                 window.location.href = '/mis-viajes.html';
             } else {
+                mostrarMensaje('exito-mi-viaje', datos.mensaje, 'exito');
                 await cargarDetalleViaje();
             }
         } catch (error) {
             mostrarMensaje('aviso-mi-viaje', 'No se pudo actualizar el estado del viaje.');
+            cambiarEstadoBoton(botonAccion, false);
         }
     }
 
-    async function cancelarReservacion(idReservacion, esEliminacionConductor) {
+    async function cancelarReservacion(idReservacion, esEliminacionConductor, botonAccion) {
+        ocultarMensaje('aviso-mi-viaje');
+        ocultarMensaje('exito-mi-viaje');
+        cambiarEstadoBoton(botonAccion, true, 'Procesando...');
+
         try {
             const respuesta = await fetch('/api/reservaciones/' + idReservacion, {
                 method: 'DELETE'
@@ -200,16 +247,19 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (!respuesta.ok) {
                 mostrarMensaje('aviso-mi-viaje', datos.mensaje);
+                cambiarEstadoBoton(botonAccion, false);
                 return;
             }
 
             if (esEliminacionConductor) {
+                mostrarMensaje('exito-mi-viaje', datos.mensaje, 'exito');
                 await cargarDetalleViaje();
             } else {
                 window.location.href = '/mis-viajes.html';
             }
         } catch (error) {
             mostrarMensaje('aviso-mi-viaje', 'Error de conexión al cancelar la reservación.');
+            cambiarEstadoBoton(botonAccion, false);
         }
     }
 

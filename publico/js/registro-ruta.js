@@ -4,29 +4,95 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    const pasoInstrucciones = document.getElementById('paso-instrucciones-ruta');
     const pasoMapa = document.getElementById('paso-mapa-ruta');
     const pasoExito = document.getElementById('paso-exito-ruta');
-    const botonComenzar = document.getElementById('boton-comenzar-ruta');
+    const campoNombreRuta = document.getElementById('ruta-nombre');
+    const botonSalidaCentro = document.getElementById('boton-salida-centro');
+    const botonDestinoUabcs = document.getElementById('boton-destino-uabcs');
     const botonLimpiar = document.getElementById('boton-limpiar-puntos');
     const botonGuardar = document.getElementById('boton-guardar-ruta');
     const textoEstadoPuntos = document.getElementById('texto-estado-puntos');
 
-    let mapa = null;
     let puntoOrigen = null;
     let puntoDestino = null;
     let marcadorOrigen = null;
     let marcadorDestino = null;
     let lineaRuta = null;
 
-    function limpiarMapa() {
-        if (marcadorOrigen && mapa) {
+    const mapa = L.map('mapa-grabar-ruta').setView([24.115, -110.32], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'OpenStreetMap'
+    }).addTo(mapa);
+
+    setTimeout(function () {
+        mapa.invalidateSize();
+    }, 100);
+
+    function actualizarLineaYEstado() {
+        if (lineaRuta) {
+            mapa.removeLayer(lineaRuta);
+            lineaRuta = null;
+        }
+
+        if (puntoOrigen && puntoDestino) {
+            lineaRuta = L.polyline(
+                [
+                    [puntoOrigen.lat, puntoOrigen.lng],
+                    [puntoDestino.lat, puntoDestino.lng]
+                ],
+                { color: '#057A91', weight: 4 }
+            ).addTo(mapa);
+            mapa.fitBounds(lineaRuta.getBounds(), { padding: [30, 30] });
+            textoEstadoPuntos.textContent = 'Ruta marcada correctamente. Presiona Guardar ruta para finalizar.';
+        } else if (puntoOrigen) {
+            textoEstadoPuntos.textContent = 'Salida marcada. Ahora toca en el mapa o usa el botón para marcar el destino.';
+        } else if (puntoDestino) {
+            textoEstadoPuntos.textContent = 'Destino marcado. Ahora toca en el mapa o usa el botón para marcar la salida.';
+        } else {
+            textoEstadoPuntos.textContent = 'Toca en el mapa para marcar el punto de salida.';
+        }
+    }
+
+    function colocarOrigen(coordenadas) {
+        if (marcadorOrigen) {
             mapa.removeLayer(marcadorOrigen);
         }
-        if (marcadorDestino && mapa) {
+        puntoOrigen = coordenadas;
+        marcadorOrigen = L.circleMarker([coordenadas.lat, coordenadas.lng], {
+            radius: 8,
+            color: '#FFFFFF',
+            weight: 2,
+            fillColor: '#057A91',
+            fillOpacity: 1
+        }).addTo(mapa);
+        marcadorOrigen.bindTooltip('Salida', { permanent: true, direction: 'top' });
+        actualizarLineaYEstado();
+    }
+
+    function colocarDestino(coordenadas) {
+        if (marcadorDestino) {
             mapa.removeLayer(marcadorDestino);
         }
-        if (lineaRuta && mapa) {
+        puntoDestino = coordenadas;
+        marcadorDestino = L.circleMarker([coordenadas.lat, coordenadas.lng], {
+            radius: 6,
+            color: '#FFFFFF',
+            weight: 2,
+            fillColor: '#0F7652',
+            fillOpacity: 1
+        }).addTo(mapa);
+        marcadorDestino.bindTooltip('Destino', { permanent: true, direction: 'top' });
+        actualizarLineaYEstado();
+    }
+
+    function limpiarMapa() {
+        if (marcadorOrigen) {
+            mapa.removeLayer(marcadorOrigen);
+        }
+        if (marcadorDestino) {
+            mapa.removeLayer(marcadorDestino);
+        }
+        if (lineaRuta) {
             mapa.removeLayer(lineaRuta);
         }
         puntoOrigen = null;
@@ -34,57 +100,29 @@ document.addEventListener('DOMContentLoaded', async function () {
         marcadorOrigen = null;
         marcadorDestino = null;
         lineaRuta = null;
-        textoEstadoPuntos.textContent = 'Toca en el mapa para marcar el punto de origen.';
+        actualizarLineaYEstado();
     }
 
-    botonComenzar.addEventListener('click', function () {
-        pasoInstrucciones.classList.add('formulario-oculto');
-        pasoMapa.classList.remove('formulario-oculto');
+    mapa.on('click', function (evento) {
+        ocultarMensaje('aviso-registro-ruta');
+        const coordenadas = evento.latlng;
+        if (!puntoOrigen) {
+            colocarOrigen(coordenadas);
+            return;
+        }
+        if (!puntoDestino) {
+            colocarDestino(coordenadas);
+        }
+    });
 
-        mapa = L.map('mapa-grabar-ruta').setView([24.115, -110.32], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'OpenStreetMap'
-        }).addTo(mapa);
+    botonSalidaCentro.addEventListener('click', function () {
+        ocultarMensaje('aviso-registro-ruta');
+        colocarOrigen({ lat: 24.1422, lng: -110.3128 });
+    });
 
-        setTimeout(function () {
-            mapa.invalidateSize();
-        }, 100);
-
-        mapa.on('click', function (evento) {
-            const coordenadas = evento.latlng;
-
-            if (!puntoOrigen) {
-                puntoOrigen = coordenadas;
-                marcadorOrigen = L.circleMarker([coordenadas.lat, coordenadas.lng], {
-                    radius: 8,
-                    color: '#07B5D5',
-                    fillColor: '#07B5D5',
-                    fillOpacity: 1
-                }).addTo(mapa);
-                textoEstadoPuntos.textContent = 'Origen marcado. Ahora toca en el mapa el punto de destino.';
-                return;
-            }
-
-            if (!puntoDestino) {
-                puntoDestino = coordenadas;
-                marcadorDestino = L.circleMarker([coordenadas.lat, coordenadas.lng], {
-                    radius: 8,
-                    color: '#16A672',
-                    fillColor: '#16A672',
-                    fillOpacity: 1
-                }).addTo(mapa);
-
-                lineaRuta = L.polyline(
-                    [
-                        [puntoOrigen.lat, puntoOrigen.lng],
-                        [puntoDestino.lat, puntoDestino.lng]
-                    ],
-                    { color: '#07B5D5', weight: 4 }
-                ).addTo(mapa);
-
-                textoEstadoPuntos.textContent = 'Ruta marcada. Escribe el nombre de la ruta y presiona Guardar ruta.';
-            }
-        });
+    botonDestinoUabcs.addEventListener('click', function () {
+        ocultarMensaje('aviso-registro-ruta');
+        colocarDestino({ lat: 24.1027, lng: -110.3160 });
     });
 
     botonLimpiar.addEventListener('click', function () {
@@ -93,18 +131,22 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     botonGuardar.addEventListener('click', async function () {
-        ocultarMensaje('aviso-registro-ruta');
-        const nombre = document.getElementById('ruta-nombre').value.trim();
+        limpiarErroresCampos(['ruta-nombre'], 'aviso-registro-ruta');
+        const nombre = campoNombreRuta.value.trim();
 
         if (!nombre) {
-            mostrarMensaje('aviso-registro-ruta', 'Escribe un nombre para identificar tu ruta.');
+            marcarErrorCampo('ruta-nombre', 'Escribe un nombre fácil de identificar para tu ruta.');
+            mostrarMensaje('aviso-registro-ruta', 'Escribe el nombre de la ruta antes de guardarla.');
+            campoNombreRuta.focus();
             return;
         }
 
         if (!puntoOrigen || !puntoDestino) {
-            mostrarMensaje('aviso-registro-ruta', 'Debes marcar tanto el origen como el destino en el mapa.');
+            mostrarMensaje('aviso-registro-ruta', 'Debes marcar tanto el punto de salida como el de destino en el mapa.');
             return;
         }
+
+        cambiarEstadoBoton(botonGuardar, true, 'Guardando ruta...');
 
         try {
             const respuesta = await fetch('/api/rutas-guardadas', {
@@ -112,10 +154,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     nombre: nombre,
-                    latitud_origen: puntoOrigen.lat.toFixed(6),
-                    longitud_origen: puntoOrigen.lng.toFixed(6),
-                    latitud_destino: puntoDestino.lat.toFixed(6),
-                    longitud_destino: puntoDestino.lng.toFixed(6)
+                    latitud_origen: Number(puntoOrigen.lat).toFixed(6),
+                    longitud_origen: Number(puntoOrigen.lng).toFixed(6),
+                    latitud_destino: Number(puntoDestino.lat).toFixed(6),
+                    longitud_destino: Number(puntoDestino.lng).toFixed(6)
                 })
             });
 
@@ -123,6 +165,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (!respuesta.ok) {
                 mostrarMensaje('aviso-registro-ruta', datos.mensaje);
+                cambiarEstadoBoton(botonGuardar, false);
                 return;
             }
 
@@ -130,6 +173,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             pasoExito.classList.remove('formulario-oculto');
         } catch (error) {
             mostrarMensaje('aviso-registro-ruta', 'Error de conexión al guardar la ruta.');
+            cambiarEstadoBoton(botonGuardar, false);
         }
     });
 });

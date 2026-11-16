@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#07B5D5">
+    <meta name="theme-color" content="#057A91">
     <title>Raity - Explorar</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/imagenes/icono-192.png">
@@ -18,31 +18,32 @@
         Sin conexión a internet. Algunas funciones no están disponibles.
     </div>
 
-    <div class="contenedor-explorar">
-        <div id="mapa-explorar" class="mapa-explorar"></div>
+    <main class="contenedor-explorar">
+        <div id="mapa-explorar" class="mapa-explorar" role="region" aria-label="Mapa de viajes disponibles en La Paz"></div>
 
         <div class="barra-superior-explorar">
             <div class="tarjeta-saludo">
-                <span id="saludo-usuario" class="saludo-texto">¡Hola!</span>
-                <button type="button" id="boton-notificaciones" class="boton-campana" aria-label="Notificaciones">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#07B5D5" stroke-width="2">
+                <h1 id="saludo-usuario" class="saludo-texto">¡Hola!</h1>
+                <button type="button" id="boton-notificaciones" class="boton-campana" aria-label="Ver avisos de actividad">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00667A" stroke-width="2" aria-hidden="true">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                     </svg>
                 </button>
             </div>
             <div class="contenedor-chip">
-                <span id="chip-viajes-cercanos" class="chip-cercanos">Buscando viajes cerca de ti...</span>
+                <span id="chip-viajes-cercanos" class="chip-cercanos" role="status" aria-live="polite">Buscando viajes cerca de ti...</span>
             </div>
         </div>
 
-        <div id="tarjeta-destacada" class="tarjeta-destacada formulario-oculto">
+        <section id="tarjeta-destacada" class="tarjeta-destacada formulario-oculto" aria-label="Ruta destacada en el mapa">
             <div class="cabecera-usuario">
                 <span class="insignia insignia-verde" id="destacada-lugares">Asientos disponibles</span>
                 <button type="button" id="boton-cerrar-destacada" class="boton-cerrar-tarjeta" aria-label="Cerrar ruta destacada">X</button>
             </div>
             <p class="texto-ayuda">Ruta destacada</p>
             <p id="destacada-ruta" class="ruta-viaje"></p>
+            <p id="destacada-hora" class="detalle-linea"></p>
             <div class="cabecera-usuario">
                 <div class="info-usuario-fila">
                     <span id="destacada-iniciales" class="avatar-iniciales"></span>
@@ -52,33 +53,47 @@
                     </div>
                 </div>
             </div>
-            <a href="/buscar.html" class="boton boton-principal">Ver viajes disponibles</a>
+            <a id="enlace-destacada-ver" href="/buscar.html" class="boton boton-principal">Ver viajes disponibles</a>
+        </section>
+    </main>
+
+    <div id="modal-avisos-explorar" class="modal-fondo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-avisos">
+        <div class="modal-caja">
+            <h2 id="titulo-modal-avisos" class="modal-titulo">Avisos de actividad</h2>
+            <p id="texto-modal-avisos" class="modal-texto">Consultando actividad reciente...</p>
+            <div class="fila-botones-modal">
+                <a href="/mis-viajes.html" class="boton boton-principal">Ver mis viajes</a>
+                <button type="button" id="boton-cerrar-avisos" class="boton boton-secundario">Cerrar</button>
+            </div>
         </div>
     </div>
 
-    <nav class="barra-navegacion">
-        <a href="/explorar.html" class="enlace-nav activo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <nav class="barra-navegacion" aria-label="Navegación principal">
+        <a href="/explorar.html" class="enlace-nav activo" aria-current="page">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
             </svg>
             <span>Explorar</span>
         </a>
         <a href="/buscar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>Buscar</span>
         </a>
-        <a href="/publicar.html" class="boton-publicar-central" aria-label="Publicar viaje">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+        <a href="/publicar.html" class="boton-publicar-central">
+            <span class="circulo-publicar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </span>
+            <span>Publicar</span>
         </a>
         <a href="/mis-viajes.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 11l2-5h10l2 5"/>
                 <rect x="3" y="11" width="18" height="6" rx="2"/>
                 <circle cx="7" cy="17" r="2"/>
@@ -87,7 +102,7 @@
             <span>Viajes</span>
         </a>
         <a href="/perfil.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="8" r="4"/>
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
             </svg>

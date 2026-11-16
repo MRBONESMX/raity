@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#07B5D5">
-    <title>Raity - Mi Viaje</title>
+    <meta name="theme-color" content="#057A91">
+    <title>Raity - Detalle del Viaje</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/imagenes/icono-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,22 +26,29 @@
 
     <main class="contenedor-principal">
         <a href="/mis-viajes.html" class="enlace-regresar">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" aria-hidden="true">
                 <line x1="19" y1="12" x2="5" y2="12"/>
                 <polyline points="12 19 5 12 12 5"/>
             </svg>
-            <span>Mi viaje</span>
+            <span>Volver a Mis Viajes</span>
         </a>
 
+        <div class="encabezado-pagina">
+            <h1 class="titulo-pagina">Detalle del Viaje</h1>
+        </div>
+
+        <p id="mi-viaje-cargando" class="texto-ayuda margen-abajo" role="status" aria-live="polite">Cargando detalle del viaje...</p>
+
         <div id="aviso-mi-viaje" class="aviso-error"></div>
+        <div id="exito-mi-viaje" class="aviso-exito"></div>
 
         <section id="resumen-viaje" class="tarjeta-viaje"></section>
 
-        <div id="mapa-mi-viaje" class="mapa-detalle"></div>
+        <div id="mapa-mi-viaje" class="mapa-detalle" role="region" aria-label="Mapa de la ruta del viaje"></div>
 
         <section class="tarjeta-blanca">
             <div class="cabecera-usuario">
-                <h2 class="nombre-conductor">Pasajeros unidos</h2>
+                <h2 class="subtitulo-pagina">Pasajeros unidos</h2>
                 <span id="conteo-pasajeros" class="insignia insignia-verde">0/4</span>
             </div>
             <div id="lista-pasajeros"></div>
@@ -50,29 +57,32 @@
         <section id="acciones-mi-viaje"></section>
     </main>
 
-    <nav class="barra-navegacion">
+    <nav class="barra-navegacion" aria-label="Navegación principal">
         <a href="/explorar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
             </svg>
             <span>Explorar</span>
         </a>
         <a href="/buscar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>Buscar</span>
         </a>
-        <a href="/publicar.html" class="boton-publicar-central" aria-label="Publicar viaje">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+        <a href="/publicar.html" class="boton-publicar-central">
+            <span class="circulo-publicar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </span>
+            <span>Publicar</span>
         </a>
-        <a href="/mis-viajes.html" class="enlace-nav activo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="/mis-viajes.html" class="enlace-nav activo" aria-current="page">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 11l2-5h10l2 5"/>
                 <rect x="3" y="11" width="18" height="6" rx="2"/>
                 <circle cx="7" cy="17" r="2"/>
@@ -81,7 +91,7 @@
             <span>Viajes</span>
         </a>
         <a href="/perfil.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="8" r="4"/>
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
             </svg>

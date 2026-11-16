@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#07B5D5">
+    <meta name="theme-color" content="#057A91">
     <title>Raity - Mis Viajes</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/imagenes/icono-192.png">
@@ -28,37 +28,100 @@
             <h1 class="titulo-pagina">Mis Viajes</h1>
         </div>
 
-        <div id="aviso-mis-viajes" class="aviso-error"></div>
+        <p id="mis-viajes-cargando" class="texto-ayuda margen-abajo" role="status" aria-live="polite">Cargando tus viajes...</p>
 
+        <div id="aviso-mis-viajes" class="aviso-error"></div>
+        <div id="exito-mis-viajes" class="aviso-exito"></div>
+
+        <h2 class="subtitulo-pagina">Viaje Activo</h2>
         <section id="contenedor-viaje-actual" class="margen-abajo"></section>
 
-        <h2 class="titulo-pagina margen-arriba margen-abajo">Historial de Viajes</h2>
+        <h2 class="subtitulo-pagina margen-arriba">Historial de Viajes</h2>
         <section id="contenedor-historial"></section>
     </main>
 
-    <nav class="barra-navegacion">
+    <div id="modal-calificar" class="modal-fondo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-calificar">
+        <div class="modal-caja">
+            <h2 id="titulo-modal-calificar" class="modal-titulo">Calificar Conductor</h2>
+            <p id="texto-calificar-viaje" class="modal-texto"></p>
+            <div id="aviso-calificar" class="aviso-error"></div>
+            <form id="formulario-calificar" novalidate>
+                <div class="grupo-campo">
+                    <label for="calificar-puntuacion" class="etiqueta-campo">Calificación</label>
+                    <select id="calificar-puntuacion" class="campo-entrada">
+                        <option value="5">5 estrellas - Excelente</option>
+                        <option value="4">4 estrellas - Muy bueno</option>
+                        <option value="3">3 estrellas - Bueno</option>
+                        <option value="2">2 estrellas - Regular</option>
+                        <option value="1">1 estrella - Malo</option>
+                    </select>
+                </div>
+                <div class="grupo-campo">
+                    <label for="calificar-comentario" class="etiqueta-campo">Comentario (opcional)</label>
+                    <textarea id="calificar-comentario" class="campo-entrada campo-textarea" placeholder="Escribe cómo fue tu experiencia en el viaje..."></textarea>
+                </div>
+                <div class="fila-botones-modal">
+                    <button type="button" id="boton-cancelar-calificacion" class="boton boton-secundario">Cancelar</button>
+                    <button type="submit" id="boton-guardar-calificacion" class="boton boton-principal">Guardar calificación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-reportar" class="modal-fondo" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-reportar">
+        <div class="modal-caja">
+            <h2 id="titulo-modal-reportar" class="modal-titulo">Reportar Viaje</h2>
+            <p id="texto-reportar-viaje" class="modal-texto"></p>
+            <div id="aviso-reportar" class="aviso-error"></div>
+            <form id="formulario-reportar" novalidate>
+                <div class="grupo-campo">
+                    <label for="reportar-motivo" class="etiqueta-campo">Motivo principal</label>
+                    <select id="reportar-motivo" class="campo-entrada">
+                        <option value="">Selecciona un motivo</option>
+                        <option value="Impuntualidad en la salida">Impuntualidad en la salida</option>
+                        <option value="Ruta distinta a la acordada">Ruta distinta a la acordada</option>
+                        <option value="Trato inadecuado">Trato inadecuado</option>
+                        <option value="Otro motivo">Otro motivo</option>
+                    </select>
+                </div>
+                <div class="grupo-campo">
+                    <label for="reportar-detalle" class="etiqueta-campo">Detalles del incidente</label>
+                    <textarea id="reportar-detalle" class="campo-entrada campo-textarea" placeholder="Describe brevemente lo sucedido..."></textarea>
+                </div>
+                <div class="fila-botones-modal">
+                    <button type="button" id="boton-cancelar-reporte" class="boton boton-secundario">Cancelar</button>
+                    <button type="submit" id="boton-enviar-reporte" class="boton boton-rojo">Enviar reporte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <nav class="barra-navegacion" aria-label="Navegación principal">
         <a href="/explorar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
             </svg>
             <span>Explorar</span>
         </a>
         <a href="/buscar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>Buscar</span>
         </a>
-        <a href="/publicar.html" class="boton-publicar-central" aria-label="Publicar viaje">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+        <a href="/publicar.html" class="boton-publicar-central">
+            <span class="circulo-publicar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </span>
+            <span>Publicar</span>
         </a>
-        <a href="/mis-viajes.html" class="enlace-nav activo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="/mis-viajes.html" class="enlace-nav activo" aria-current="page">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 11l2-5h10l2 5"/>
                 <rect x="3" y="11" width="18" height="6" rx="2"/>
                 <circle cx="7" cy="17" r="2"/>
@@ -67,7 +130,7 @@
             <span>Viajes</span>
         </a>
         <a href="/perfil.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="8" r="4"/>
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
             </svg>

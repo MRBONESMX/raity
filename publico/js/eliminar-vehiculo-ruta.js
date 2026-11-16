@@ -6,11 +6,30 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const selectVehiculo = document.getElementById('eliminar-select-vehiculo');
     const selectRuta = document.getElementById('eliminar-select-ruta');
+    const resumenVehiculo = document.getElementById('resumen-vehiculo-eliminar');
     const botonEliminarVehiculo = document.getElementById('boton-eliminar-vehiculo');
     const botonEliminarRuta = document.getElementById('boton-eliminar-ruta');
     const mapaContenedor = document.getElementById('mapa-eliminar-ruta');
 
+    let vehiculosDisponibles = [];
     let rutasDisponibles = [];
+
+    function actualizarResumenVehiculo() {
+        const idVehiculo = Number(selectVehiculo.value);
+        for (let i = 0; i < vehiculosDisponibles.length; i++) {
+            const vehiculo = vehiculosDisponibles[i];
+            if (vehiculo.id === idVehiculo) {
+                resumenVehiculo.textContent =
+                    'Vehículo seleccionado: ' + vehiculo.modelo +
+                    ' | Matrícula: ' + vehiculo.matricula +
+                    ' | Color: ' + vehiculo.color +
+                    ' | Asientos: ' + vehiculo.numero_asientos;
+                resumenVehiculo.classList.remove('formulario-oculto');
+                return;
+            }
+        }
+        resumenVehiculo.classList.add('formulario-oculto');
+    }
 
     function dibujarRutaSeleccionada() {
         const idRuta = Number(selectRuta.value);
@@ -37,21 +56,23 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const respuestaVehiculos = await fetch('/api/vehiculos');
             const datosVehiculos = await respuestaVehiculos.json();
-            const vehiculos = datosVehiculos.vehiculos || [];
+            vehiculosDisponibles = datosVehiculos.vehiculos || [];
 
             selectVehiculo.innerHTML = '';
-            if (vehiculos.length === 0) {
+            if (vehiculosDisponibles.length === 0) {
                 selectVehiculo.innerHTML = '<option value="">No tienes vehículos registrados</option>';
                 botonEliminarVehiculo.disabled = true;
+                resumenVehiculo.classList.add('formulario-oculto');
             } else {
                 botonEliminarVehiculo.disabled = false;
-                for (let i = 0; i < vehiculos.length; i++) {
-                    const vehiculo = vehiculos[i];
+                for (let i = 0; i < vehiculosDisponibles.length; i++) {
+                    const vehiculo = vehiculosDisponibles[i];
                     const opcion = document.createElement('option');
                     opcion.value = vehiculo.id;
                     opcion.textContent = vehiculo.modelo + ' | ' + vehiculo.matricula + ' | ' + vehiculo.color;
                     selectVehiculo.appendChild(opcion);
                 }
+                actualizarResumenVehiculo();
             }
 
             const respuestaRutas = await fetch('/api/rutas-guardadas');
@@ -80,54 +101,77 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    selectVehiculo.addEventListener('change', actualizarResumenVehiculo);
     selectRuta.addEventListener('change', dibujarRutaSeleccionada);
 
-    botonEliminarVehiculo.addEventListener('click', async function () {
+    botonEliminarVehiculo.addEventListener('click', function () {
         ocultarMensaje('aviso-eliminar');
         ocultarMensaje('exito-eliminar');
         const idVehiculo = selectVehiculo.value;
         if (!idVehiculo) {
             return;
         }
+        const textoSeleccion = selectVehiculo.options[selectVehiculo.selectedIndex].textContent;
 
-        try {
-            const respuesta = await fetch('/api/vehiculos/' + idVehiculo, { method: 'DELETE' });
-            const datos = await respuesta.json();
+        pedirConfirmacion(
+            'Eliminar vehículo',
+            '¿Estás seguro de que deseas eliminar este vehículo (' + textoSeleccion + ')? Esta acción no se puede deshacer.',
+            'Sí, eliminar vehículo',
+            async function () {
+                cambiarEstadoBoton(botonEliminarVehiculo, true, 'Eliminando...');
+                try {
+                    const respuesta = await fetch('/api/vehiculos/' + idVehiculo, { method: 'DELETE' });
+                    const datos = await respuesta.json();
+                    cambiarEstadoBoton(botonEliminarVehiculo, false);
 
-            if (!respuesta.ok) {
-                mostrarMensaje('aviso-eliminar', datos.mensaje);
-                return;
+                    if (!respuesta.ok) {
+                        mostrarMensaje('aviso-eliminar', datos.mensaje);
+                        return;
+                    }
+
+                    mostrarMensaje('exito-eliminar', datos.mensaje, 'exito');
+                    await cargarListas();
+                } catch (error) {
+                    cambiarEstadoBoton(botonEliminarVehiculo, false);
+                    mostrarMensaje('aviso-eliminar', 'Error de conexión al eliminar el vehículo.');
+                }
             }
-
-            mostrarMensaje('exito-eliminar', datos.mensaje);
-            await cargarListas();
-        } catch (error) {
-            mostrarMensaje('aviso-eliminar', 'Error de conexión al eliminar el vehículo.');
-        }
+        );
     });
 
-    botonEliminarRuta.addEventListener('click', async function () {
+    botonEliminarRuta.addEventListener('click', function () {
         ocultarMensaje('aviso-eliminar');
         ocultarMensaje('exito-eliminar');
         const idRuta = selectRuta.value;
         if (!idRuta) {
             return;
         }
+        const textoSeleccion = selectRuta.options[selectRuta.selectedIndex].textContent;
 
-        try {
-            const respuesta = await fetch('/api/rutas-guardadas/' + idRuta, { method: 'DELETE' });
-            const datos = await respuesta.json();
+        pedirConfirmacion(
+            'Eliminar ruta guardada',
+            '¿Estás seguro de que deseas eliminar la ruta "' + textoSeleccion + '"? Esta acción no se puede deshacer.',
+            'Sí, eliminar ruta',
+            async function () {
+                cambiarEstadoBoton(botonEliminarRuta, true, 'Eliminando...');
+                try {
+                    const respuesta = await fetch('/api/rutas-guardadas/' + idRuta, { method: 'DELETE' });
+                    const datos = await respuesta.json();
+                    cambiarEstadoBoton(botonEliminarRuta, false);
 
-            if (!respuesta.ok) {
-                mostrarMensaje('aviso-eliminar', datos.mensaje);
-                return;
+                    if (!respuesta.ok) {
+                        mostrarMensaje('aviso-eliminar', datos.mensaje);
+                        return;
+                    }
+
+                    mostrarMensaje('exito-eliminar', datos.mensaje, 'exito');
+                    await cargarListas();
+                } catch (error) {
+                    cambiarEstadoBoton(botonEliminarRuta, false);
+                    mostrarMensaje('aviso-eliminar', 'Error de conexión al eliminar la ruta.');
+                }
             }
-
-            mostrarMensaje('exito-eliminar', datos.mensaje);
-            await cargarListas();
-        } catch (error) {
-            mostrarMensaje('aviso-eliminar', 'Error de conexión al eliminar la ruta.');
-        }
+        );
     });
 
     await cargarListas();

@@ -4,18 +4,51 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
+    const textoCargando = document.getElementById('publicar-cargando');
     const cajaRequisitos = document.getElementById('caja-requisitos-publicar');
     const textoRequisitos = document.getElementById('texto-requisitos-publicar');
     const enlaceRequisitos = document.getElementById('enlace-requisitos-publicar');
     const formularioPublicar = document.getElementById('formulario-publicar');
     const selectVehiculo = document.getElementById('publicar-vehiculo');
     const selectRuta = document.getElementById('publicar-ruta');
+    const selectAsientos = document.getElementById('publicar-asientos');
     const casillaVioleta = document.getElementById('publicar-violeta');
     const notaVioleta = document.getElementById('nota-raity-violeta');
+    const botonPublicar = document.getElementById('boton-publicar-viaje');
 
+    const camposValidar = ['publicar-origen', 'publicar-destino', 'publicar-hora'];
+    let vehiculosDisponibles = [];
     let rutasDisponibles = [];
 
-    function mostrarMapaRutaSeleccionada() {
+    function extraerOrigenDestino(nombreRuta) {
+        if (!nombreRuta) {
+            return null;
+        }
+        const separadores = ['->', ' a ', ' - ', '-'];
+        for (let i = 0; i < separadores.length; i++) {
+            const partes = nombreRuta.split(separadores[i]);
+            if (partes.length === 2 && partes[0].trim() && partes[1].trim()) {
+                return {
+                    origen: partes[0].trim(),
+                    destino: partes[1].trim()
+                };
+            }
+        }
+        return null;
+    }
+
+    function actualizarAsientosVehiculo() {
+        const idVehiculo = Number(selectVehiculo.value);
+        for (let i = 0; i < vehiculosDisponibles.length; i++) {
+            const vehiculo = vehiculosDisponibles[i];
+            if (vehiculo.id === idVehiculo && vehiculo.numero_asientos >= 1 && vehiculo.numero_asientos <= 4) {
+                selectAsientos.value = String(vehiculo.numero_asientos);
+                break;
+            }
+        }
+    }
+
+    function mostrarMapaRutaSeleccionada(actualizarTextos) {
         const idRuta = Number(selectRuta.value);
         for (let i = 0; i < rutasDisponibles.length; i++) {
             const ruta = rutasDisponibles[i];
@@ -33,10 +66,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     }
                 );
 
-                const partes = ruta.nombre.split('->');
-                if (partes.length === 2) {
-                    document.getElementById('publicar-origen').value = partes[0].trim();
-                    document.getElementById('publicar-destino').value = partes[1].trim();
+                if (actualizarTextos) {
+                    const partes = extraerOrigenDestino(ruta.nombre);
+                    if (partes) {
+                        document.getElementById('publicar-origen').value = partes.origen;
+                        document.getElementById('publicar-destino').value = partes.destino;
+                    }
                 }
                 break;
             }
@@ -46,9 +81,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     try {
         const respuestaVehiculos = await fetch('/api/vehiculos');
         const datosVehiculos = await respuestaVehiculos.json();
-        const vehiculos = datosVehiculos.vehiculos || [];
+        vehiculosDisponibles = datosVehiculos.vehiculos || [];
 
-        if (vehiculos.length === 0) {
+        if (vehiculosDisponibles.length === 0) {
+            textoCargando.classList.add('formulario-oculto');
             textoRequisitos.textContent = 'Para publicar un viaje primero debes registrar tu vehículo.';
             enlaceRequisitos.href = '/registro-vehiculo.html';
             enlaceRequisitos.textContent = 'Registrar vehículo';
@@ -61,6 +97,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         rutasDisponibles = datosRutas.rutas || [];
 
         if (rutasDisponibles.length === 0) {
+            textoCargando.classList.add('formulario-oculto');
             textoRequisitos.textContent = 'Ya tienes un vehículo registrado. Ahora guarda una ruta en el mapa para poder publicar.';
             enlaceRequisitos.href = '/registro-ruta.html';
             enlaceRequisitos.textContent = 'Registrar ruta';
@@ -68,8 +105,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        for (let i = 0; i < vehiculos.length; i++) {
-            const vehiculo = vehiculos[i];
+        for (let i = 0; i < vehiculosDisponibles.length; i++) {
+            const vehiculo = vehiculosDisponibles[i];
             const opcion = document.createElement('option');
             opcion.value = vehiculo.id;
             opcion.textContent = vehiculo.modelo + ' - ' + vehiculo.matricula + ' (' + vehiculo.color + ')';
@@ -89,31 +126,63 @@ document.addEventListener('DOMContentLoaded', async function () {
             notaVioleta.textContent = 'Solo las usuarias con género Mujer pueden publicar en la modalidad Raity Violeta.';
         }
 
+        textoCargando.classList.add('formulario-oculto');
         formularioPublicar.classList.remove('formulario-oculto');
-        mostrarMapaRutaSeleccionada();
+
+        actualizarAsientosVehiculo();
+        mostrarMapaRutaSeleccionada(true);
+        activarRespaldoFormulario('formulario-publicar', 'raity_respaldo_publicar');
+        mostrarMapaRutaSeleccionada(false);
     } catch (error) {
-        mostrarMensaje('aviso-publicar', 'Error al cargar tus vehículos y rutas.');
+        textoCargando.classList.add('formulario-oculto');
+        mostrarMensaje('aviso-publicar', 'Error al cargar tus vehículos y rutas. Recarga la página para intentar de nuevo.');
     }
 
-    selectRuta.addEventListener('change', mostrarMapaRutaSeleccionada);
-    casillaVioleta.addEventListener('change', mostrarMapaRutaSeleccionada);
+    selectVehiculo.addEventListener('change', actualizarAsientosVehiculo);
+    selectRuta.addEventListener('change', function () {
+        mostrarMapaRutaSeleccionada(true);
+    });
+    casillaVioleta.addEventListener('change', function () {
+        mostrarMapaRutaSeleccionada(false);
+    });
 
     formularioPublicar.addEventListener('submit', async function (evento) {
         evento.preventDefault();
-        ocultarMensaje('aviso-publicar');
+        limpiarErroresCampos(camposValidar, 'aviso-publicar');
 
         const origen = document.getElementById('publicar-origen').value.trim();
         const destino = document.getElementById('publicar-destino').value.trim();
         const horaSalida = document.getElementById('publicar-hora').value.trim();
-        const lugaresTotales = document.getElementById('publicar-asientos').value;
+        const lugaresTotales = selectAsientos.value;
         const idVehiculo = selectVehiculo.value;
         const idRuta = selectRuta.value;
         const esVioleta = casillaVioleta.checked;
 
-        if (!origen || !destino || !horaSalida) {
-            mostrarMensaje('aviso-publicar', 'Por favor, completa origen, destino y hora de salida.');
+        let primerError = null;
+        if (!origen) {
+            marcarErrorCampo('publicar-origen', 'Escribe el punto de salida del viaje.');
+            primerError = 'publicar-origen';
+        }
+        if (!destino) {
+            marcarErrorCampo('publicar-destino', 'Escribe el destino del viaje.');
+            if (!primerError) {
+                primerError = 'publicar-destino';
+            }
+        }
+        if (!horaSalida) {
+            marcarErrorCampo('publicar-hora', 'Selecciona una hora de salida.');
+            if (!primerError) {
+                primerError = 'publicar-hora';
+            }
+        }
+
+        if (primerError) {
+            mostrarMensaje('aviso-publicar', 'Completa los campos marcados antes de publicar tu viaje.');
+            document.getElementById(primerError).focus();
             return;
         }
+
+        cambiarEstadoBoton(botonPublicar, true, 'Publicando viaje...');
 
         try {
             const respuesta = await fetch('/api/viajes', {
@@ -134,12 +203,15 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (!respuesta.ok) {
                 mostrarMensaje('aviso-publicar', datos.mensaje);
+                cambiarEstadoBoton(botonPublicar, false);
                 return;
             }
 
+            limpiarRespaldoFormulario('raity_respaldo_publicar');
             window.location.href = '/mi-viaje.html?id=' + datos.viaje.id;
         } catch (error) {
-            mostrarMensaje('aviso-publicar', 'Error de conexión al publicar el viaje.');
+            mostrarMensaje('aviso-publicar', 'Error de conexión al publicar el viaje. Tus datos siguen guardados en pantalla.');
+            cambiarEstadoBoton(botonPublicar, false);
         }
     });
 });

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#07B5D5">
-    <title>Raity - Perfil</title>
+    <meta name="theme-color" content="#057A91">
+    <title>Raity - Mi Perfil</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/imagenes/icono-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,15 +25,19 @@
     </div>
 
     <main class="contenedor-principal">
+        <div class="encabezado-pagina">
+            <h1 class="titulo-pagina">Mi Perfil</h1>
+        </div>
+
         <div id="aviso-perfil" class="aviso-error"></div>
 
         <section class="tarjeta-blanca tarjeta-perfil-centro">
             <div class="avatar-iniciales avatar-grande">
                 <span id="perfil-iniciales">--</span>
-                <span class="punto-activo"></span>
+                <span class="punto-activo" aria-hidden="true"></span>
             </div>
             <div>
-                <span id="perfil-nombre" class="titulo-pagina">Cargando...</span>
+                <h2 id="perfil-nombre" class="subtitulo-pagina">Cargando...</h2>
                 <span id="perfil-calificacion" class="calificacion-linea"></span>
             </div>
             <p id="perfil-correo" class="dato-perfil-correo"></p>
@@ -41,69 +45,73 @@
             <span class="insignia insignia-verde">Alumno activo</span>
         </section>
 
-        <section class="caja-estadisticas">
+        <section class="caja-estadisticas" aria-label="Estadísticas de viajes">
             <div class="cuadro-estadistica">
                 <p id="perfil-viajes" class="numero-estadistica">0</p>
                 <p class="etiqueta-estadistica">Viajes Realizados</p>
             </div>
-            <div class="cuadro-estadistica cuadro-estadistica-derecha">
+            <div class="cuadro-estadistica">
                 <p id="perfil-co2" class="numero-estadistica">0 kg</p>
                 <p class="etiqueta-estadistica">CO2 ahorrado en La Paz</p>
             </div>
         </section>
 
         <section id="bloque-sin-vehiculo" class="tarjeta-blanca texto-centro formulario-oculto">
-            <p class="margen-abajo">¿No puedes realizar una ruta?</p>
-            <a href="/registro-vehiculo.html" class="boton boton-principal">¡Registra tu ruta y vehículo aquí!</a>
+            <h2 class="subtitulo-pagina">¿Quieres ofrecer viajes en tu auto?</h2>
+            <p class="texto-ayuda margen-abajo">Registra tu vehículo y tu primera ruta para publicar raites.</p>
+            <a href="/registro-vehiculo.html" class="boton boton-principal">Registrar vehículo</a>
         </section>
 
-        <section id="bloque-conductor" class="formulario-oculto">
-            <div class="tarjeta-blanca">
-                <div class="grupo-campo">
-                    <label for="select-perfil-vehiculos" class="etiqueta-campo">Tus vehículos</label>
-                    <select id="select-perfil-vehiculos" class="campo-entrada"></select>
-                </div>
+        <section id="bloque-conductor" class="tarjeta-blanca formulario-oculto">
+            <h2 class="subtitulo-pagina">Vehículos y Rutas</h2>
 
-                <div class="grupo-campo">
-                    <label for="select-perfil-rutas" class="etiqueta-campo">Rutas guardadas</label>
-                    <select id="select-perfil-rutas" class="campo-entrada"></select>
-                </div>
-
-                <div id="mapa-perfil-ruta" class="minimapa formulario-oculto"></div>
-                <p id="texto-sin-rutas" class="texto-ayuda formulario-oculto">Aún no tienes rutas guardadas.</p>
+            <div class="grupo-campo">
+                <label for="select-perfil-vehiculos" class="etiqueta-campo">Tus vehículos</label>
+                <select id="select-perfil-vehiculos" class="campo-entrada"></select>
             </div>
 
+            <div class="grupo-campo">
+                <label for="select-perfil-rutas" class="etiqueta-campo">Rutas guardadas</label>
+                <select id="select-perfil-rutas" class="campo-entrada"></select>
+            </div>
+
+            <div id="mapa-perfil-ruta" class="minimapa margen-abajo formulario-oculto" role="region" aria-label="Vista previa de ruta guardada"></div>
+            <p id="texto-sin-rutas" class="texto-ayuda margen-abajo formulario-oculto">Aún no tienes rutas guardadas.</p>
+
             <a href="/registro-vehiculo.html" class="boton boton-principal">Agregar vehículo</a>
-            <a href="/registro-ruta.html" class="boton boton-amarillo">Agregar ruta</a>
-            <a href="/eliminar-vehiculo-ruta.html" class="boton boton-rojo-suave">Eliminar ruta o vehículo</a>
+            <a href="/registro-ruta.html" class="boton boton-secundario">Agregar ruta</a>
+            <a href="/eliminar-vehiculo-ruta.html" class="boton boton-contorno-rojo boton-ancho-completo">Administrar o eliminar vehículos y rutas</a>
         </section>
 
-        <button type="button" id="boton-cerrar-sesion" class="boton boton-rojo">Cerrar sesión</button>
+        <button type="button" id="boton-cerrar-sesion" class="boton boton-rojo margen-arriba">Cerrar sesión</button>
     </main>
 
-    <nav class="barra-navegacion">
+    <nav class="barra-navegacion" aria-label="Navegación principal">
         <a href="/explorar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
             </svg>
             <span>Explorar</span>
         </a>
         <a href="/buscar.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <span>Buscar</span>
         </a>
-        <a href="/publicar.html" class="boton-publicar-central" aria-label="Publicar viaje">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+        <a href="/publicar.html" class="boton-publicar-central">
+            <span class="circulo-publicar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </span>
+            <span>Publicar</span>
         </a>
         <a href="/mis-viajes.html" class="enlace-nav">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 11l2-5h10l2 5"/>
                 <rect x="3" y="11" width="18" height="6" rx="2"/>
                 <circle cx="7" cy="17" r="2"/>
@@ -111,8 +119,8 @@
             </svg>
             <span>Viajes</span>
         </a>
-        <a href="/perfil.html" class="enlace-nav activo">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="/perfil.html" class="enlace-nav activo" aria-current="page">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="8" r="4"/>
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
             </svg>
