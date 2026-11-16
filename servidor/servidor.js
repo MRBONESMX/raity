@@ -16,11 +16,33 @@ const rutasReservaciones = require('./rutas/reservaciones');
 
 const aplicacion = express();
 const puerto = process.env.PORT || process.env.PUERTO || 3000;
+const esEntornoNube = Boolean(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT);
 let baseInicializada = false;
 
-const rutaSubidas = path.join(__dirname, 'subidas');
-if (!process.env.NETLIFY && !fs.existsSync(rutaSubidas)) {
-    fs.mkdirSync(rutaSubidas, { recursive: true });
+function resolverRutaSubidas(nombreArchivo) {
+    const rutasPosibles = [
+        path.join(__dirname, 'subidas', nombreArchivo),
+        path.join(process.cwd(), 'servidor', 'subidas', nombreArchivo)
+    ];
+    for (let i = 0; i < rutasPosibles.length; i++) {
+        if (fs.existsSync(rutasPosibles[i])) {
+            return rutasPosibles[i];
+        }
+    }
+    return null;
+}
+
+function resolverRutaSql(nombreArchivo) {
+    const rutasPosibles = [
+        path.join(__dirname, '..', 'base-de-datos', nombreArchivo),
+        path.join(process.cwd(), 'base-de-datos', nombreArchivo)
+    ];
+    for (let i = 0; i < rutasPosibles.length; i++) {
+        if (fs.existsSync(rutasPosibles[i])) {
+            return rutasPosibles[i];
+        }
+    }
+    return null;
 }
 
 aplicacion.set('trust proxy', 1);
@@ -31,7 +53,7 @@ const AlmacenPg = conectarSesionesPg(session);
 const almacenSesiones = new AlmacenPg({
     pool: pool,
     tableName: 'sesiones',
-    createTableIfMissing: true
+    createTableIfMissing: false
 });
 
 aplicacion.use(session({
@@ -50,8 +72,8 @@ aplicacion.use(session({
 aplicacion.get('/subidas/:nombre', async function (peticion, respuesta) {
     try {
         const nombreSeguro = path.basename(peticion.params.nombre);
-        const rutaArchivo = path.join(rutaSubidas, nombreSeguro);
-        if (fs.existsSync(rutaArchivo)) {
+        const rutaArchivo = resolverRutaSubidas(nombreSeguro);
+        if (rutaArchivo) {
             return respuesta.sendFile(rutaArchivo);
         }
 
@@ -71,7 +93,9 @@ aplicacion.get('/subidas/:nombre', async function (peticion, respuesta) {
     }
 });
 
-aplicacion.use(express.static(path.join(__dirname, '..', 'publico')));
+if (!esEntornoNube) {
+    aplicacion.use(express.static(path.join(__dirname, '..', 'publico')));
+}
 
 aplicacion.use('/api/usuarios', rutasUsuarios.enrutador);
 aplicacion.use('/api/vehiculos', rutasUsuarios.verificarSesion, rutasVehiculos);
@@ -86,16 +110,19 @@ async function inicializarBaseDeDatos() {
     try {
         const consulta = await pool.query("SELECT to_regclass('public.usuarios') AS tabla");
         if (!consulta.rows[0].tabla) {
-            const rutaTablas = path.join(__dirname, '..', 'base-de-datos', 'crear-tablas.sql');
-            const rutaDatos = path.join(__dirname, '..', 'base-de-datos', 'datos-de-prueba.sql');
-            const sqlTablas = fs.readFileSync(rutaTablas, 'utf8');
-            const sqlDatos = fs.readFileSync(rutaDatos, 'utf8');
-            await pool.query(sqlTablas);
-            await pool.query(sqlDatos);
-            console.log('Tablas y datos de prueba creados automáticamente.');
+            const rutaTablas = resolverRutaSql('crear-tablas.sql');
+            const rutaDatos = resolverRutaSql('datos-de-prueba.sql');
+            if (rutaTablas && rutaDatos) {
+                await pool.query(fs.readFileSync(rutaTablas, 'utf8'));
+                await pool.query(fs.readFileSync(rutaDatos, 'utf8'));
+                console.log('Tablas y datos de prueba creados automáticamente.');
+            }
         } else {
             await pool.query(
                 'CREATE TABLE IF NOT EXISTS archivos_subidos (nombre VARCHAR(255) PRIMARY KEY, tipo VARCHAR(100) NOT NULL, datos BYTEA NOT NULL)'
+            );
+            await pool.query(
+                'CREATE TABLE IF NOT EXISTS sesiones (sid VARCHAR NOT NULL COLLATE "default" PRIMARY KEY, sess JSON NOT NULL, expire TIMESTAMP(6) NOT NULL)'
             );
         }
         baseInicializada = true;
@@ -105,6 +132,10 @@ async function inicializarBaseDeDatos() {
 }
 
 async function iniciarServidor() {
+    const rutaSubidas = path.join(__dirname, 'subidas');
+    if (!fs.existsSync(rutaSubidas)) {
+        fs.mkdirSync(rutaSubidas, { recursive: true });
+    }
     await inicializarBaseDeDatos();
     aplicacion.listen(puerto, function () {
         console.log('Servidor de Raity escuchando en el puerto ' + puerto);
