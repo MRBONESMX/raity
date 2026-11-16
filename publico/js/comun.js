@@ -1,4 +1,8 @@
 const mapasActivos = {};
+const cacheRutasCalles = {};
+const promesasRutasEnCurso = {};
+const CLAVE_CACHE_CALLES = 'raity_rutas_calles_v1';
+let colaSolicitudesRuta = Promise.resolve();
 
 async function verificarSesion() {
     try {
@@ -227,6 +231,147 @@ function mostrarAvisoProximamente(nombreFuncion) {
     document.getElementById('boton-cerrar-proximamente').focus();
 }
 
+function generarCaminoVialLaPaz(latOrigen, lonOrigen, latDestino, lonDestino) {
+    const origenLat = Number(latOrigen);
+    const origenLon = Number(lonOrigen);
+    const destinoLat = Number(latDestino);
+    const destinoLon = Number(lonDestino);
+
+    const difLat = Math.abs(destinoLat - origenLat);
+    const difLon = Math.abs(destinoLon - origenLon);
+    if (difLat < 0.001 && difLon < 0.001) {
+        return [
+            [origenLat, origenLon],
+            [destinoLat, destinoLon]
+        ];
+    }
+
+    // Corredor vial principal de La Paz (Blvd. Forjadores / Blvd. Pino Payas / Las Garzas)
+    const lonCorredorForjadores = -110.3148;
+    const latEntronqueUabcs = 24.1045;
+    const puntos = [[origenLat, origenLon]];
+
+    if (origenLon < -110.322 && destinoLon > -110.320) {
+        puntos.push([origenLat, lonCorredorForjadores]);
+        puntos.push([latEntronqueUabcs, lonCorredorForjadores]);
+    } else if (origenLon > -110.305 && destinoLon < -110.312) {
+        puntos.push([origenLat, -110.3120]);
+        puntos.push([latEntronqueUabcs, -110.3145]);
+    } else {
+        const latMedio = Number(((origenLat + destinoLat) / 2).toFixed(6));
+        puntos.push([latMedio, origenLon]);
+        puntos.push([latMedio, destinoLon]);
+    }
+
+    puntos.push([destinoLat, destinoLon]);
+    return puntos;
+}
+
+function leerCacheRutasLocal() {
+    try {
+        const texto = localStorage.getItem(CLAVE_CACHE_CALLES);
+        return texto ? JSON.parse(texto) : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function guardarCacheRutasLocal(clave, puntos) {
+    try {
+        const cache = leerCacheRutasLocal();
+        const llaves = Object.keys(cache);
+        if (llaves.length > 40) {
+            delete cache[llaves[0]];
+        }
+        cache[clave] = puntos;
+        localStorage.setItem(CLAVE_CACHE_CALLES, JSON.stringify(cache));
+    } catch (error) {
+        console.log('No se pudo guardar la ruta en caché local.');
+    }
+}
+
+function esperarMs(milisegundos) {
+    return new Promise(function (resolver) {
+        setTimeout(resolver, milisegundos);
+    });
+}
+
+async function obtenerGeometriaCalle(latOrigen, lonOrigen, latDestino, lonDestino) {
+    const origenLat = Number(latOrigen);
+    const origenLon = Number(lonOrigen);
+    const destinoLat = Number(latDestino);
+    const destinoLon = Number(lonDestino);
+
+    const clave =
+        origenLat.toFixed(4) + ',' + origenLon.toFixed(4) +
+        '->' +
+        destinoLat.toFixed(4) + ',' + destinoLon.toFixed(4);
+
+    if (cacheRutasCalles[clave]) {
+        return cacheRutasCalles[clave];
+    }
+
+    const cacheLocal = leerCacheRutasLocal();
+    if (cacheLocal[clave] && cacheLocal[clave].length >= 2) {
+        cacheRutasCalles[clave] = cacheLocal[clave];
+        return cacheLocal[clave];
+    }
+
+    if (promesasRutasEnCurso[clave]) {
+        return promesasRutasEnCurso[clave];
+    }
+
+    const promesa = colaSolicitudesRuta.then(async function () {
+        await esperarMs(120);
+        const controlador = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const temporizador = controlador ? setTimeout(function () {
+            controlador.abort();
+        }, 5000) : null;
+
+        try {
+            const urlOsrm =
+                'https://router.project-osrm.org/route/v1/driving/' +
+                origenLon + ',' + origenLat + ';' + destinoLon + ',' + destinoLat +
+                '?overview=full&geometries=geojson';
+
+            const respuesta = await fetch(urlOsrm, controlador ? { signal: controlador.signal } : {});
+            if (temporizador) {
+                clearTimeout(temporizador);
+            }
+            if (respuesta.ok) {
+                const datos = await respuesta.json();
+                if (datos.routes && datos.routes.length > 0 && datos.routes[0].geometry && datos.routes[0].geometry.coordinates) {
+                    const coordenadas = datos.routes[0].geometry.coordinates;
+                    const puntos = [];
+                    for (let i = 0; i < coordenadas.length; i++) {
+                        puntos.push([coordenadas[i][1], coordenadas[i][0]]);
+                    }
+                    if (puntos.length >= 2) {
+                        cacheRutasCalles[clave] = puntos;
+                        guardarCacheRutasLocal(clave, puntos);
+                        return puntos;
+                    }
+                }
+            }
+        } catch (error) {
+            if (temporizador) {
+                clearTimeout(temporizador);
+            }
+            console.log('Usando trazado vial alterno para La Paz.');
+        } finally {
+            delete promesasRutasEnCurso[clave];
+        }
+
+        const respaldo = generarCaminoVialLaPaz(origenLat, origenLon, destinoLat, destinoLon);
+        cacheRutasCalles[clave] = respaldo;
+        return respaldo;
+    });
+
+    colaSolicitudesRuta = promesa.catch(function () {});
+    promesasRutasEnCurso[clave] = promesa;
+    return promesa;
+}
+
 function dibujarRutaEnMapa(idContenedor, latOrigen, lonOrigen, latDestino, lonDestino, opciones) {
     if (typeof L === 'undefined') {
         return null;
@@ -283,20 +428,25 @@ function dibujarRutaEnMapa(idContenedor, latOrigen, lonOrigen, latDestino, lonDe
     }
 
     const colorLinea = configuracion.esVioleta ? '#6B21A8' : '#057A91';
-    const lineaRuta = L.polyline(
-        [
-            [origenLat, origenLon],
-            [destinoLat, destinoLon]
-        ],
-        { color: colorLinea, weight: 4 }
-    ).addTo(mapa);
+    const puntosIniciales = generarCaminoVialLaPaz(origenLat, origenLon, destinoLat, destinoLon);
+    const lineaRuta = L.polyline(puntosIniciales, { color: colorLinea, weight: 4 }).addTo(mapa);
 
     mapa.fitBounds(lineaRuta.getBounds(), { padding: [28, 28] });
     setTimeout(function () {
-        mapa.invalidateSize();
-        mapa.fitBounds(lineaRuta.getBounds(), { padding: [28, 28] });
+        if (mapasActivos[idContenedor] === mapa) {
+            mapa.invalidateSize();
+            mapa.fitBounds(lineaRuta.getBounds(), { padding: [28, 28] });
+        }
     }, 100);
     mapasActivos[idContenedor] = mapa;
+
+    obtenerGeometriaCalle(origenLat, origenLon, destinoLat, destinoLon).then(function (puntosCalle) {
+        if (mapasActivos[idContenedor] === mapa && puntosCalle && puntosCalle.length >= 2) {
+            lineaRuta.setLatLngs(puntosCalle);
+            mapa.fitBounds(lineaRuta.getBounds(), { padding: [28, 28] });
+        }
+    });
+
     return mapa;
 }
 

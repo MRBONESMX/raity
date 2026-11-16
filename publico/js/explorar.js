@@ -16,8 +16,77 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     let totalDisponibles = 0;
     let totalMisActivos = 0;
+    let lineaRutaActiva = null;
+    let marcadorDestinoActivo = null;
+    let numeroSolicitudRuta = 0;
 
     saludoUsuario.textContent = '¡Hola, ' + usuario.nombre_completo + '!';
+
+    const mapaExplorar = L.map('mapa-explorar', { zoomControl: false }).setView([24.115, -110.32], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'OpenStreetMap'
+    }).addTo(mapaExplorar);
+
+    function limpiarRutaActivaMapa() {
+        if (lineaRutaActiva) {
+            mapaExplorar.removeLayer(lineaRutaActiva);
+            lineaRutaActiva = null;
+        }
+        if (marcadorDestinoActivo) {
+            mapaExplorar.removeLayer(marcadorDestinoActivo);
+            marcadorDestinoActivo = null;
+        }
+    }
+
+    function trazarRutaViajeEnExplorar(viaje) {
+        limpiarRutaActivaMapa();
+        numeroSolicitudRuta += 1;
+        const idSolicitud = numeroSolicitudRuta;
+
+        const colorLinea = viaje.es_violeta ? '#6B21A8' : '#057A91';
+        const puntosIniciales = generarCaminoVialLaPaz(
+            viaje.latitud_origen,
+            viaje.longitud_origen,
+            viaje.latitud_destino,
+            viaje.longitud_destino
+        );
+
+        lineaRutaActiva = L.polyline(puntosIniciales, {
+            color: colorLinea,
+            weight: 5,
+            opacity: 0.9
+        }).addTo(mapaExplorar);
+
+        marcadorDestinoActivo = L.circleMarker(
+            [Number(viaje.latitud_destino), Number(viaje.longitud_destino)],
+            {
+                radius: 8,
+                color: '#FFFFFF',
+                weight: 2,
+                fillColor: '#0F7652',
+                fillOpacity: 1
+            }
+        ).addTo(mapaExplorar);
+        marcadorDestinoActivo.bindTooltip('Destino: ' + viaje.destino, {
+            permanent: true,
+            direction: 'top'
+        });
+
+        obtenerGeometriaCalle(
+            viaje.latitud_origen,
+            viaje.longitud_origen,
+            viaje.latitud_destino,
+            viaje.longitud_destino
+        ).then(function (puntosCalle) {
+            if (idSolicitud !== numeroSolicitudRuta || !lineaRutaActiva) {
+                return;
+            }
+            if (puntosCalle && puntosCalle.length >= 2) {
+                lineaRutaActiva.setLatLngs(puntosCalle);
+            }
+        });
+    }
 
     function mostrarTarjetaDestacada(viaje) {
         document.getElementById('destacada-lugares').textContent =
@@ -48,6 +117,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         tarjetaDestacada.classList.remove('formulario-oculto');
+        trazarRutaViajeEnExplorar(viaje);
     }
 
     botonNotificaciones.addEventListener('click', function () {
@@ -72,13 +142,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     botonCerrarDestacada.addEventListener('click', function () {
         tarjetaDestacada.classList.add('formulario-oculto');
+        limpiarRutaActivaMapa();
     });
-
-    const mapaExplorar = L.map('mapa-explorar', { zoomControl: false }).setView([24.115, -110.32], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'OpenStreetMap'
-    }).addTo(mapaExplorar);
 
     try {
         const respuesta = await fetch('/api/viajes');

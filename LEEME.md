@@ -61,8 +61,15 @@ Todos los usuarios incluidos en `base-de-datos/datos-de-prueba.sql` tienen la mi
 
 | Nombre | Correo institucional | Número de control | Género | Rol de ejemplo | Contraseña |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Santiago D. | `sade_24@alu.uabcs.mx` | `2028120` | Hombre | Conductor (Nissan March) con viaje en curso | `123456` |
-| Rodolfo M. | `rodolfo_24@alu.uabcs.mx` | `2028121` | Hombre | Conductor (Toyota Corolla) con viaje disponible | `123456` |
-| Isbeth M. | `isbeth_24@alu.uabcs.mx` | `2028122` | Mujer | Conductora (Honda Civic) con Raity Violeta | `123456` |
-| Mariana L. | `mariana_24@alu.uabcs.mx` | `2028123` | Mujer | Pasajera (puede ver y reservar Raity Violeta) | `123456` |
-| Diego T. | `diego_24@alu.uabcs.mx` | `2028124` | Hombre | Pasajero | `123456` |
+| Marco López | `alumno_12@alu.uabcs.mx` | `1900123` | Hombre | Conductor (Nissan March) con viaje en curso, viaje programado e historial | `123456` |
+| Paco Ramírez | `paco_15@alu.uabcs.mx` | `1900124` | Hombre | Conductor (Toyota Corolla) | `123456` |
+| Valeria Cota | `valeria_18@alu.uabcs.mx` | `1900125` | Mujer | Conductora (Honda Civic) con Raity Violeta | `123456` |
+| Sofía Avilés | `sofia_20@alu.uabcs.mx` | `1900126` | Mujer | Conductora (Kia Rio) con Raity Violeta | `123456` |
+| Mateo Rochín | `mateo_21@alu.uabcs.mx` | `1900127` | Hombre | Conductor (Chevrolet Aveo) | `123456` |
+| Lucía Trasviña | `lucia_22@alu.uabcs.mx` | `1900128` | Mujer | Conductora (Mazda 3) | `123456` |
+| Fernando Verdugo | `fernando_23@alu.uabcs.mx` | `1900129` | Hombre | Conductor (Volkswagen Jetta) | `123456` |
+| Camila Geraldo | `camila_25@alu.uabcs.mx` | `1900130` | Mujer | Conductora (Suzuki Swift) con Raity Violeta | `123456` |
+| Alejandro Ceseña | `alejandro_14@alu.uabcs.mx` | `1900131` | Hombre | Pasajero | `123456` |
+| Daniela Armenta | `daniela_16@alu.uabcs.mx` | `1900132` | Mujer | Pasajera (acceso a Raity Violeta) | `123456` |
+| Jorge Meza | `jorge_17@alu.uabcs.mx` | `1900133` | Hombre | Pasajero | `123456` |
+| Elena Murillo | `elena_19@alu.uabcs.mx` | `1900134` | Mujer | Pasajera (acceso a Raity Violeta) | `123456` |

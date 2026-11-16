@@ -23,6 +23,7 @@ const esEntornoNube = Boolean(
     typeof Netlify !== 'undefined'
 );
 let baseInicializada = false;
+let promesaInicializacion = null;
 
 function resolverRutaSubidas(nombreArchivo) {
     const rutasPosibles = [
@@ -113,28 +114,52 @@ async function inicializarBaseDeDatos() {
     if (baseInicializada) {
         return;
     }
-    try {
-        const consulta = await pool.query("SELECT to_regclass('public.usuarios') AS tabla");
-        if (!consulta.rows[0].tabla) {
-            const rutaTablas = resolverRutaSql('crear-tablas.sql');
-            const rutaDatos = resolverRutaSql('datos-de-prueba.sql');
-            if (rutaTablas && rutaDatos) {
-                await pool.query(fs.readFileSync(rutaTablas, 'utf8'));
-                await pool.query(fs.readFileSync(rutaDatos, 'utf8'));
-                console.log('Tablas y datos de prueba creados automáticamente.');
-            }
-        } else {
-            await pool.query(
-                'CREATE TABLE IF NOT EXISTS archivos_subidos (nombre VARCHAR(255) PRIMARY KEY, tipo VARCHAR(100) NOT NULL, datos BYTEA NOT NULL)'
-            );
-            await pool.query(
-                'CREATE TABLE IF NOT EXISTS sesiones (sid VARCHAR NOT NULL COLLATE "default" PRIMARY KEY, sess JSON NOT NULL, expire TIMESTAMP(6) NOT NULL)'
-            );
-        }
-        baseInicializada = true;
-    } catch (error) {
-        console.error('No se pudo inicializar automáticamente la base de datos:', error.message);
+    if (promesaInicializacion) {
+        return promesaInicializacion;
     }
+
+    promesaInicializacion = (async function () {
+        try {
+            const consulta = await pool.query("SELECT to_regclass('public.usuarios') AS tabla");
+            if (!consulta.rows[0].tabla) {
+                const rutaTablas = resolverRutaSql('crear-tablas.sql');
+                const rutaDatos = resolverRutaSql('datos-de-prueba.sql');
+                if (rutaTablas && rutaDatos) {
+                    await pool.query(fs.readFileSync(rutaTablas, 'utf8'));
+                    await pool.query(fs.readFileSync(rutaDatos, 'utf8'));
+                    console.log('Tablas y datos de prueba creados automáticamente.');
+                }
+            } else {
+                await pool.query(
+                    'CREATE TABLE IF NOT EXISTS archivos_subidos (nombre VARCHAR(255) PRIMARY KEY, tipo VARCHAR(100) NOT NULL, datos BYTEA NOT NULL)'
+                );
+                await pool.query(
+                    'CREATE TABLE IF NOT EXISTS sesiones (sid VARCHAR NOT NULL COLLATE "default" PRIMARY KEY, sess JSON NOT NULL, expire TIMESTAMP(6) NOT NULL)'
+                );
+
+                const consultaSemilla = await pool.query(
+                    "SELECT id FROM usuarios WHERE correo_institucional = 'alumno_12@alu.uabcs.mx'"
+                );
+                if (consultaSemilla.rows.length === 0) {
+                    const rutaDatos = resolverRutaSql('datos-de-prueba.sql');
+                    if (rutaDatos) {
+                        await pool.query(
+                            'TRUNCATE TABLE sesiones, reportes, calificaciones, reservaciones, viajes, rutas_guardadas, vehiculos, usuarios RESTART IDENTITY CASCADE'
+                        );
+                        await pool.query(fs.readFileSync(rutaDatos, 'utf8'));
+                        console.log('Datos de prueba de La Paz actualizados automáticamente.');
+                    }
+                }
+            }
+            baseInicializada = true;
+        } catch (error) {
+            console.error('No se pudo inicializar automáticamente la base de datos:', error.message);
+        } finally {
+            promesaInicializacion = null;
+        }
+    })();
+
+    return promesaInicializacion;
 }
 
 async function iniciarServidor() {

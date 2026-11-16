@@ -1,4 +1,4 @@
-const NOMBRE_CACHE = 'raity-cache-v2';
+const NOMBRE_CACHE = 'raity-cache-v3';
 
 const ARCHIVOS_CACHE = [
     '/',

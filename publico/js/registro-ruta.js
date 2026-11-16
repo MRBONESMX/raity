@@ -35,15 +35,34 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         if (puntoOrigen && puntoDestino) {
-            lineaRuta = L.polyline(
-                [
-                    [puntoOrigen.lat, puntoOrigen.lng],
-                    [puntoDestino.lat, puntoDestino.lng]
-                ],
-                { color: '#057A91', weight: 4 }
-            ).addTo(mapa);
-            mapa.fitBounds(lineaRuta.getBounds(), { padding: [30, 30] });
-            textoEstadoPuntos.textContent = 'Ruta marcada correctamente. Presiona Guardar ruta para finalizar.';
+            const origenActual = puntoOrigen;
+            const destinoActual = puntoDestino;
+            const puntosIniciales = generarCaminoVialLaPaz(
+                origenActual.lat,
+                origenActual.lng,
+                destinoActual.lat,
+                destinoActual.lng
+            );
+
+            lineaRuta = L.polyline(puntosIniciales, { color: '#057A91', weight: 4 }).addTo(mapa);
+            const lineaActual = lineaRuta;
+            mapa.fitBounds(lineaActual.getBounds(), { padding: [30, 30] });
+            textoEstadoPuntos.textContent = 'Trazando el recorrido por las calles de La Paz...';
+
+            obtenerGeometriaCalle(
+                origenActual.lat,
+                origenActual.lng,
+                destinoActual.lat,
+                destinoActual.lng
+            ).then(function (puntosCalle) {
+                if (lineaRuta === lineaActual && puntosCalle && puntosCalle.length >= 2) {
+                    lineaActual.setLatLngs(puntosCalle);
+                    mapa.fitBounds(lineaActual.getBounds(), { padding: [30, 30] });
+                }
+                if (puntoOrigen && puntoDestino) {
+                    textoEstadoPuntos.textContent = 'Camino por calles trazado correctamente. Presiona Guardar ruta para finalizar.';
+                }
+            });
         } else if (puntoOrigen) {
             textoEstadoPuntos.textContent = 'Salida marcada. Ahora toca en el mapa o usa el botón para marcar el destino.';
         } else if (puntoDestino) {
