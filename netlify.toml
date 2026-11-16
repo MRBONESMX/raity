@@ -8,15 +8,3 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
   included_files = ["base-de-datos/*.sql", "servidor/subidas/*"]
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/api/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/subidas/*"
-  to = "/.netlify/functions/api/subidas/:splat"
-  status = 200
-  force = true

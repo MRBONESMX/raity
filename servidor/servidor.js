@@ -16,7 +16,12 @@ const rutasReservaciones = require('./rutas/reservaciones');
 
 const aplicacion = express();
 const puerto = process.env.PORT || process.env.PUERTO || 3000;
-const esEntornoNube = Boolean(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT);
+const esEntornoNube = Boolean(
+    process.env.NETLIFY ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.LAMBDA_TASK_ROOT ||
+    typeof Netlify !== 'undefined'
+);
 let baseInicializada = false;
 
 function resolverRutaSubidas(nombreArchivo) {
@@ -53,7 +58,8 @@ const AlmacenPg = conectarSesionesPg(session);
 const almacenSesiones = new AlmacenPg({
     pool: pool,
     tableName: 'sesiones',
-    createTableIfMissing: false
+    createTableIfMissing: false,
+    pruneSessionInterval: esEntornoNube ? false : 900
 });
 
 aplicacion.use(session({

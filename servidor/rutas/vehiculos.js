@@ -16,7 +16,7 @@ async function guardarImagenSubida(archivo) {
     const nombreFinal = Date.now() + '-' + nombreLimpio;
     const tipoArchivo = archivo.mimetype || 'image/jpeg';
 
-    if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.LAMBDA_TASK_ROOT) {
+    if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.LAMBDA_TASK_ROOT && typeof Netlify === 'undefined') {
         const rutaCarpeta = path.join(__dirname, '..', 'subidas');
         if (!fs.existsSync(rutaCarpeta)) {
             fs.mkdirSync(rutaCarpeta, { recursive: true });
