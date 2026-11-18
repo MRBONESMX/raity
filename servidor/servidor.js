@@ -136,6 +136,46 @@ async function inicializarBaseDeDatos() {
                 await pool.query(
                     'CREATE TABLE IF NOT EXISTS sesiones (sid VARCHAR NOT NULL COLLATE "default" PRIMARY KEY, sess JSON NOT NULL, expire TIMESTAMP(6) NOT NULL)'
                 );
+                await pool.query(
+                    `CREATE TABLE IF NOT EXISTS bitacora_auditoria (
+                        id SERIAL PRIMARY KEY,
+                        fecha_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        tabla_afectada VARCHAR(60) NOT NULL,
+                        operacion VARCHAR(20) NOT NULL CHECK (operacion IN ('INSERT', 'UPDATE', 'DELETE')),
+                        id_registro INTEGER,
+                        usuario_bd VARCHAR(80) NOT NULL DEFAULT CURRENT_USER,
+                        pid_sesion INTEGER NOT NULL DEFAULT pg_backend_pid(),
+                        detalle_evento TEXT NOT NULL
+                    )`
+                );
+                await pool.query(
+                    `CREATE TABLE IF NOT EXISTS control_marcas_tiempo (
+                        id SERIAL PRIMARY KEY,
+                        recurso VARCHAR(80) NOT NULL UNIQUE,
+                        valor_actual INTEGER NOT NULL DEFAULT 0,
+                        ultima_marca_lectura BIGINT NOT NULL DEFAULT 0,
+                        ultima_marca_escritura BIGINT NOT NULL DEFAULT 0,
+                        actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )`
+                );
+                await pool.query(
+                    'ALTER TABLE reservaciones ADD COLUMN IF NOT EXISTS latitud_pasajero NUMERIC(9, 6)'
+                );
+                await pool.query(
+                    'ALTER TABLE reservaciones ADD COLUMN IF NOT EXISTS longitud_pasajero NUMERIC(9, 6)'
+                );
+                await pool.query(
+                    'ALTER TABLE reservaciones ADD COLUMN IF NOT EXISTS latitud_recogida NUMERIC(9, 6)'
+                );
+                await pool.query(
+                    'ALTER TABLE reservaciones ADD COLUMN IF NOT EXISTS longitud_recogida NUMERIC(9, 6)'
+                );
+                await pool.query(
+                    'ALTER TABLE reservaciones ADD COLUMN IF NOT EXISTS distancia_ruta_metros INTEGER'
+                );
+                await pool.query(
+                    'ALTER TABLE reservaciones ADD COLUMN IF NOT EXISTS fuera_de_ruta BOOLEAN NOT NULL DEFAULT FALSE'
+                );
 
                 const consultaSemilla = await pool.query(
                     "SELECT id FROM usuarios WHERE correo_institucional = 'alumno_12@alu.uabcs.mx'"
@@ -150,6 +190,17 @@ async function inicializarBaseDeDatos() {
                         console.log('Datos de prueba de La Paz actualizados automáticamente.');
                     }
                 }
+
+                await pool.query(
+                    `UPDATE reservaciones
+                     SET latitud_pasajero = 24.119500,
+                         longitud_pasajero = -110.324500,
+                         latitud_recogida = 24.119500,
+                         longitud_recogida = -110.324500,
+                         distancia_ruta_metros = 18,
+                         fuera_de_ruta = FALSE
+                     WHERE id = 1 AND latitud_recogida IS NULL`
+                );
             }
             baseInicializada = true;
         } catch (error) {

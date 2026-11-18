@@ -373,13 +373,30 @@ textarea:focus-visible,
     text-align: left;
 }
 
+.aviso-advertencia {
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    background-color: #FFFBEB;
+    border: 2px solid #D97706;
+    color: #78350F;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    text-align: left;
+}
+
 .aviso-error svg,
-.aviso-exito svg {
+.aviso-exito svg,
+.aviso-advertencia svg {
     flex-shrink: 0;
 }
 
 .aviso-error.visible,
-.aviso-exito.visible {
+.aviso-exito.visible,
+.aviso-advertencia.visible {
     display: flex;
 }
 
@@ -396,6 +413,11 @@ textarea:focus-visible,
     cursor: pointer;
     text-align: center;
     margin-bottom: 10px;
+}
+
+.boton svg {
+    margin-right: 8px;
+    flex-shrink: 0;
 }
 
 .boton:last-child {
@@ -579,6 +601,12 @@ textarea:focus-visible,
     background-color: #EEEEEE;
     color: #444444;
     border: 1px solid #999999;
+}
+
+.insignia-amarilla {
+    background-color: #FEF3C7;
+    color: #78350F;
+    border: 1px solid #D97706;
 }
 
 .ruta-viaje {
@@ -952,6 +980,61 @@ textarea:focus-visible,
     border-radius: 50%;
     background-color: #0F7652;
     display: inline-block;
+}
+
+.punto-recogida {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #D97706;
+    display: inline-block;
+}
+
+.tarjeta-recogida-gps {
+    background-color: #FFFFFF;
+}
+
+.fila-punto-recogida {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    border-bottom: 1px solid #D4EFF5;
+}
+
+.fila-punto-recogida:last-child {
+    border-bottom: none;
+}
+
+.boton-ver-recogida {
+    background-color: #E7F7FB;
+    color: #00667A;
+    border: 1px solid #057A91;
+    border-radius: 10px;
+    min-height: 40px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.info-pasajero-columna {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detalle-recogida-pasajero {
+    font-size: 12px;
+    color: #4A4A4A;
+}
+
+.acciones-pasajero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
 }
 
 .resumen-seleccion {

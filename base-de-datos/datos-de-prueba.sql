@@ -76,6 +76,51 @@ INSERT INTO reservaciones (id, id_viaje, id_pasajero, estado) VALUES
 (23, 13, 11, 'activa'),
 (24, 14, 9, 'cancelada');
 
+UPDATE reservaciones
+SET latitud_pasajero = 24.119500,
+    longitud_pasajero = -110.324500,
+    latitud_recogida = 24.119500,
+    longitud_recogida = -110.324500,
+    distancia_ruta_metros = 18,
+    fuera_de_ruta = FALSE
+WHERE id = 1;
+
+UPDATE reservaciones
+SET latitud_pasajero = 24.122500,
+    longitud_pasajero = -110.320000,
+    latitud_recogida = 24.119500,
+    longitud_recogida = -110.320000,
+    distancia_ruta_metros = 334,
+    fuera_de_ruta = TRUE
+WHERE id = 2;
+
+UPDATE reservaciones
+SET latitud_pasajero = 24.128200,
+    longitud_pasajero = -110.305000,
+    latitud_recogida = 24.128050,
+    longitud_recogida = -110.305000,
+    distancia_ruta_metros = 17,
+    fuera_de_ruta = FALSE
+WHERE id = 3;
+
+UPDATE reservaciones
+SET latitud_pasajero = 24.132500,
+    longitud_pasajero = -110.326500,
+    latitud_recogida = 24.132500,
+    longitud_recogida = -110.326500,
+    distancia_ruta_metros = 22,
+    fuera_de_ruta = FALSE
+WHERE id = 5;
+
+UPDATE reservaciones
+SET latitud_pasajero = 24.135000,
+    longitud_pasajero = -110.321000,
+    latitud_recogida = 24.132500,
+    longitud_recogida = -110.321000,
+    distancia_ruta_metros = 278,
+    fuera_de_ruta = TRUE
+WHERE id = 6;
+
 INSERT INTO calificaciones (id_viaje, id_quien_califica, id_calificado, puntuacion, comentario) VALUES
 (13, 10, 1, 5, 'Muy puntual saliendo de Bellavista'),
 (13, 11, 1, 4, 'Buen viaje hacia Sistemas'),
@@ -99,6 +144,10 @@ INSERT INTO reportes (id_viaje, id_quien_reporta, motivo) VALUES
 (14, 9, 'El conductor cancelo con anticipacion por revision mecanica'),
 (10, 1, 'Punto de encuentro movido una cuadra por trafico en Indeco');
 
+INSERT INTO control_marcas_tiempo (id, recurso, valor_actual, ultima_marca_lectura, ultima_marca_escritura) VALUES
+(1, 'lugares_viaje_2', 2, 100, 100),
+(2, 'contador_reservas_uabcs', 23, 100, 100);
+
 SELECT setval(pg_get_serial_sequence('usuarios', 'id'), (SELECT COALESCE(MAX(id), 1) FROM usuarios));
 SELECT setval(pg_get_serial_sequence('vehiculos', 'id'), (SELECT COALESCE(MAX(id), 1) FROM vehiculos));
 SELECT setval(pg_get_serial_sequence('rutas_guardadas', 'id'), (SELECT COALESCE(MAX(id), 1) FROM rutas_guardadas));
@@ -106,3 +155,5 @@ SELECT setval(pg_get_serial_sequence('viajes', 'id'), (SELECT COALESCE(MAX(id), 
 SELECT setval(pg_get_serial_sequence('reservaciones', 'id'), (SELECT COALESCE(MAX(id), 1) FROM reservaciones));
 SELECT setval(pg_get_serial_sequence('calificaciones', 'id'), (SELECT COALESCE(MAX(id), 1) FROM calificaciones));
 SELECT setval(pg_get_serial_sequence('reportes', 'id'), (SELECT COALESCE(MAX(id), 1) FROM reportes));
+SELECT setval(pg_get_serial_sequence('control_marcas_tiempo', 'id'), (SELECT COALESCE(MAX(id), 1) FROM control_marcas_tiempo));
+SELECT setval(pg_get_serial_sequence('bitacora_auditoria', 'id'), (SELECT COALESCE(MAX(id), 1) FROM bitacora_auditoria));

@@ -1,5 +1,10 @@
 const express = require('express');
 const pool = require('../conexion');
+const {
+    validarCoordenada,
+    calcularRecogidaSobreRuta,
+    construirMensajeRecogida
+} = require('./reservaciones');
 
 const enrutador = express.Router();
 
@@ -183,6 +188,12 @@ enrutador.get('/:id', async function (peticion, respuesta) {
                 reservaciones.id AS id_reservacion,
                 usuarios.id AS id_usuario,
                 usuarios.nombre_completo,
+                reservaciones.latitud_pasajero,
+                reservaciones.longitud_pasajero,
+                reservaciones.latitud_recogida,
+                reservaciones.longitud_recogida,
+                reservaciones.distancia_ruta_metros,
+                reservaciones.fuera_de_ruta,
                 (
                     SELECT COALESCE(ROUND(AVG(calificaciones.puntuacion), 1), 5.0)
                     FROM calificaciones
@@ -358,6 +369,107 @@ enrutador.put('/:id/cancelar', async function (peticion, respuesta) {
     } catch (error) {
         console.error('Error al cancelar viaje:', error);
         respuesta.status(500).json({ mensaje: 'Error interno al cancelar el viaje.' });
+    }
+});
+
+enrutador.put('/:id/punto-recogida', async function (peticion, respuesta) {
+    try {
+        const idUsuario = peticion.session.usuario.id;
+        const idViaje = parseInt(peticion.params.id, 10);
+
+        if (isNaN(idViaje)) {
+            return respuesta.status(400).json({ mensaje: 'Identificador de viaje no válido.' });
+        }
+
+        const coordPasajero = validarCoordenada(
+            peticion.body.latitud_pasajero,
+            peticion.body.longitud_pasajero
+        );
+
+        if (!coordPasajero) {
+            return respuesta.status(400).json({
+                mensaje: 'No se recibió una ubicación GPS válida del dispositivo.'
+            });
+        }
+
+        const consultaViaje = await pool.query(
+            `
+            SELECT
+                viajes.id,
+                viajes.id_conductor,
+                viajes.estado,
+                rutas_guardadas.latitud_origen,
+                rutas_guardadas.longitud_origen,
+                rutas_guardadas.latitud_destino,
+                rutas_guardadas.longitud_destino
+            FROM viajes
+            JOIN rutas_guardadas ON viajes.id_ruta = rutas_guardadas.id
+            WHERE viajes.id = $1
+            `,
+            [idViaje]
+        );
+
+        if (consultaViaje.rows.length === 0) {
+            return respuesta.status(404).json({ mensaje: 'Viaje no encontrado.' });
+        }
+
+        const viaje = consultaViaje.rows[0];
+        if (viaje.estado !== 'programado' && viaje.estado !== 'en_curso') {
+            return respuesta.status(400).json({
+                mensaje: 'Solo puedes compartir tu ubicación en viajes programados o en curso.'
+            });
+        }
+
+        const consultaReservacion = await pool.query(
+            "SELECT id FROM reservaciones WHERE id_viaje = $1 AND id_pasajero = $2 AND estado = 'activa'",
+            [idViaje, idUsuario]
+        );
+
+        if (consultaReservacion.rows.length === 0) {
+            return respuesta.status(403).json({
+                mensaje: 'Debes tener un asiento reservado en este viaje para fijar tu punto de recogida.'
+            });
+        }
+
+        const idReservacion = consultaReservacion.rows[0].id;
+        const datosRecogida = calcularRecogidaSobreRuta(
+            coordPasajero.latitud,
+            coordPasajero.longitud,
+            viaje,
+            peticion.body.puntos_ruta
+        );
+
+        const actualizacion = await pool.query(
+            `
+            UPDATE reservaciones
+            SET
+                latitud_pasajero = $1,
+                longitud_pasajero = $2,
+                latitud_recogida = $3,
+                longitud_recogida = $4,
+                distancia_ruta_metros = $5,
+                fuera_de_ruta = $6
+            WHERE id = $7
+            RETURNING *
+            `,
+            [
+                datosRecogida.latitud_pasajero,
+                datosRecogida.longitud_pasajero,
+                datosRecogida.latitud_recogida,
+                datosRecogida.longitud_recogida,
+                datosRecogida.distancia_ruta_metros,
+                datosRecogida.fuera_de_ruta,
+                idReservacion
+            ]
+        );
+
+        respuesta.json({
+            mensaje: construirMensajeRecogida(datosRecogida),
+            reservacion: actualizacion.rows[0]
+        });
+    } catch (error) {
+        console.error('Error al actualizar punto de recogida:', error);
+        respuesta.status(500).json({ mensaje: 'Error interno al registrar el punto de recogida.' });
     }
 });
 

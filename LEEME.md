@@ -24,6 +24,17 @@ psql -U postgres -d raity -f base-de-datos/crear-tablas.sql
 psql -U postgres -d raity -f base-de-datos/datos-de-prueba.sql
 ```
 
+### Scripts del Proyecto Final Integrador de Base de Datos II (orden de ejecución)
+
+Si deseas ejecutar o demostrar los entregables completos de **Base de Datos II** en **PostgreSQL + DBeaver** desde una base de datos de pruebas vacía:
+
+1. `base-de-datos/01_estructura.sql`: Crea dominios (`dominio_correo_uabcs`, `dominio_calificacion`), tablas de negocio, `bitacora_auditoria`, `control_marcas_tiempo`, restricciones e índices.
+2. `base-de-datos/02_datos.sql`: Inserta los datos válidos de prueba (89 registros incluyendo puntos de recogida GPS).
+3. `base-de-datos/03_triggers_procedimientos.sql`: Instala los triggers de regla de negocio y auditoría, los procedimientos almacenados y ejecuta casos válidos y rechazados (P04).
+4. `base-de-datos/04_transacciones.sql`: Ejecuta pruebas de `COMMIT` (P05), `ROLLBACK` (P06), `SAVEPOINT` (P07), consulta de bitácora, copia sombra y comandos de respaldo lógico con `pg_dump` / `pg_restore` (P08).
+5. `base-de-datos/05_sesion_A.sql` y `base-de-datos/06_sesion_B.sql`: Guiones sincronizados para abrir **dos conexiones independientes** en DBeaver (verificando PIDs distintos con `SELECT pg_backend_pid();`) y ejecutar paso a paso en el orden `[A0, B0, A1, B1, A2, A3, B2...]` las pruebas de lecturas concurrentes, actualización perdida (P09), bloqueo `SELECT ... FOR UPDATE` (P10), deadlock provocado y prevenido (P11), `SERIALIZABLE` y marcas de tiempo (P12).
+6. `base-de-datos/07_validaciones.sql`: Ejecuta las 3 consultas de calidad de datos y los 5 rechazos por `UNIQUE` (P01), `CHECK`/dominio (P02), `FOREIGN KEY` (P03), regla de negocio/trigger (P04) y `NOT NULL`/estado inválido.
+
 ### 2. Configurar variables de entorno
 
 En la carpeta `servidor/`, revisa el archivo `.env` (o copia `.env.ejemplo` a `.env`) y ajusta tu contraseña y datos de PostgreSQL:

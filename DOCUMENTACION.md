@@ -63,8 +63,15 @@ El código cumple con el requerimiento **RNF07** (organización por módulos ind
 ```text
 Raity/
   base-de-datos/
-    crear-tablas.sql              Script maestro de creación de tablas, llaves y restricciones CHECK.
-    datos-de-prueba.sql           12 estudiantes de La Paz, 8 vehículos, 10 rutas, 14 viajes, reservaciones, calificaciones y reportes.
+    crear-tablas.sql              Script maestro completo: dominios, tablas, bitácora, marcas de tiempo, triggers y procedimientos.
+    datos-de-prueba.sql           12 estudiantes de La Paz, 8 vehículos, 10 rutas, 14 viajes, 24 reservaciones (con GPS), calificaciones y reportes.
+    01_estructura.sql             Entregable 1 (BD II): DDL de dominios, tablas de negocio, bitácora, marcas de tiempo, restricciones e índices.
+    02_datos.sql                  Entregable 2 (BD II): Carga de más de 85 registros válidos de prueba (incluyendo puntos de recogida GPS).
+    03_triggers_procedimientos.sql  Entregable 3 (BD II): Triggers de negocio/auditoría, procedimientos almacenados y pruebas P04.
+    04_transacciones.sql          Entregable 4 (BD II): COMMIT/ROLLBACK (P05-P06), SAVEPOINT (P07), bitácora, copia sombra y respaldo (P08).
+    05_sesion_A.sql               Entregable 5 (BD II): Guion sincronizado Sesión A (concurrencia P09-P12 en DBeaver).
+    06_sesion_B.sql               Entregable 6 (BD II): Guion sincronizado Sesión B (concurrencia P09-P12 en DBeaver).
+    07_validaciones.sql           Entregable 7 (BD II): 3 consultas de calidad de datos y 5 pruebas de rechazo (P01-P04 y NOT NULL).
   netlify/
     database/migrations/          Migraciones SQL versionadas aplicadas automáticamente en Netlify Database.
     functions/api.js              Adaptador Netlify Functions v2 (ruta /api/* y /subidas/*) que envuelve la app Express.
@@ -76,24 +83,24 @@ Raity/
     buscar.html                   Buscador en vivo, filtros rápidos (Todos, Hacia UABCS, Santa Fe, Raity Violeta) y tarjetas con minimapa.
     publicar.html                 Formulario para publicar un raite con vista previa de ruta y opción Raity Violeta.
     mis-viajes.html               Viaje activo arriba e Historial abajo con botones Reportar y Calificar Conductor.
-    mi-viaje.html                 Detalle de viaje (vista conductor con Iniciar/Terminar/Cancelar/Eliminar pasajero, o vista pasajero con Salir del viaje).
+    mi-viaje.html                 Detalle de viaje (vista conductor y vista pasajero con punto de recogida GPS sobre ruta y advertencia fuera de ruta).
     perfil.html                   Datos del estudiante, estadísticas (viajes realizados y CO2), estado Alumno activo, vehículos y rutas.
     registro-vehiculo.html        Formulario multipart para vehículo, foto de credencial y foto del auto.
     registro-ruta.html            Flujo en 3 pasos: instrucciones iniciales, mapa de 2 clics para salida/destino y confirmación de éxito.
     eliminar-vehiculo-ruta.html   Selección y eliminación segura de vehículos o rutas con vista previa en mapa.
     manifest.json                 Metadatos PWA de instalación.
-    service-worker.js             Caché offline del cascarón de la app y manejo seguro de fallos de red.
+    service-worker.js             Caché offline del cascarón de la app (`raity-cache-v4`) y manejo seguro de fallos de red.
     css/
       estilos.css                 Hoja de estilos externa Mobile First siguiendo los patrones de la Unidad III.
     js/
-      comun.js                    Funciones compartidas: verificarSesion, mensajes/errores, modales, trazado de mapas OSRM, respaldo de formularios y detector offline.
+      comun.js                    Funciones compartidas: verificarSesion, mensajes/errores, permiso GPS, proyección en ruta, trazado OSRM y detector offline.
       registrar-sw.js             Registra /service-worker.js al cargar la página.
       acceso.js                   Validación y envío de formularios de Login y Registro.
       explorar.js                 Mapa general de La Paz, marcadores, trazado destacado y detalle de la campana de avisos.
-      buscar.js                   Consulta con debounce, chips de filtro, render de minimapas y reservación de asiento.
+      buscar.js                   Consulta con debounce, chips de filtro, render de minimapas y reservación con redirección GPS (`?solicitar_gps=1`).
       publicar.js                 Validación previa de vehículo/ruta y publicación de viaje (con bloqueo de Raity Violeta según género).
       mis-viajes.js               Viajes activos, historial con fechas relativas y modales de calificación/reporte.
-      mi-viaje.js                 Pasajeros unidos, cambios de estado del viaje y cancelación de reservaciones.
+      mi-viaje.js                 Pasajeros unidos, cambios de estado del viaje, cancelación y gestión de puntos de recogida GPS en mapa.
       perfil.js                   Carga de perfil, estadísticas, desplegables de autos/rutas y cierre de sesión.
       registro-vehiculo.js        Validación de campos/archivos y envío multipart con FormData.
       registro-ruta.js            Paso de instrucciones, marcado de 2 puntos en La Paz, botones rápidos y confirmación.
@@ -103,7 +110,7 @@ Raity/
       icono-192.png               Ícono PWA 192x192 px.
       icono-512.png               Ícono PWA 512x512 px.
   servidor/
-    servidor.js                   Configuración de Express, sesiones PostgreSQL, servido híbrido /subidas y montaje de rutas API.
+    servidor.js                   Configuración de Express, sesiones PostgreSQL, migración automática de columnas/tablas y montaje de rutas API.
     conexion.js                   Selector automático de Pool PostgreSQL (Netlify DB en nube o variables locales .env).
     .env.ejemplo                  Plantilla de variables de entorno locales.
     package.json                  Dependencias de ejecución del servidor Express.
@@ -112,8 +119,8 @@ Raity/
       usuarios.js                 POST /registro, POST /iniciar-sesion, POST /cerrar-sesion, GET /sesion, GET /perfil.
       vehiculos.js                GET /api/vehiculos, POST /api/vehiculos, DELETE /api/vehiculos/:id.
       rutas-guardadas.js          GET /api/rutas-guardadas, POST /api/rutas-guardadas, DELETE /api/rutas-guardadas/:id.
-      viajes.js                   GET /api/viajes, GET /mis-viajes, GET /:id, POST /, PUT /iniciar, /terminar, /cancelar, POST /calificar y /reportar.
-      reservaciones.js            POST /api/reservaciones (atómico) y DELETE /api/reservaciones/:id.
+      viajes.js                   GET /api/viajes, GET /mis-viajes, GET /:id, PUT /:id/punto-recogida, POST /, PUT /iniciar, /terminar, /cancelar, POST /calificar y /reportar.
+      reservaciones.js            POST /api/reservaciones (atómico), PUT /api/reservaciones/:id/ubicacion y DELETE /api/reservaciones/:id.
   DOCUMENTACION.md                Documentación completa del proyecto.
   DOCUMENTACION_RAITY_GOOGLE_DOCS.docx   Versión formateada lista para abrir y compartir en Documentos de Google.
   LEEME.md                        Guía rápida de instalación, PostgreSQL, arranque local y usuarios de prueba.
@@ -140,34 +147,40 @@ erDiagram
     usuarios ||--o{ calificaciones : "emite o recibe"
     viajes ||--o{ reportes : "recibe"
     usuarios ||--o{ reportes : "reporta"
+    viajes ||--o{ bitacora_auditoria : "audita"
+    reservaciones ||--o{ bitacora_auditoria : "audita"
+    calificaciones ||--o{ bitacora_auditoria : "audita"
 ```
 
-### Descripción detallada de las tablas (`base-de-datos/crear-tablas.sql`)
+### Dominios personalizados y descripción detallada de las tablas (`base-de-datos/crear-tablas.sql` y `01_estructura.sql`)
+
+Se definen dos dominios personalizados con `CREATE DOMAIN`:
+* **`dominio_correo_uabcs`:** `VARCHAR(120) CHECK (VALUE LIKE '%@alu.uabcs.mx')`.
+* **`dominio_calificacion`:** `INTEGER CHECK (VALUE >= 1 AND VALUE <= 5)`.
 
 1. **`usuarios`:** almacena la identidad académica del estudiante.
    * `id`: entero autoincremental (`SERIAL PRIMARY KEY`).
-   * `nombre_completo`: texto obligatorio (`VARCHAR(120)`).
-   * `correo_institucional`: único (`UNIQUE`), validado en registro con terminación `@alu.uabcs.mx`.
-   * `numero_control`: matrícula única (`UNIQUE`).
+   * `nombre_completo`: texto obligatorio (`VARCHAR(120) NOT NULL`).
+   * `correo_institucional`: tipo `dominio_correo_uabcs`, único (`UNIQUE`) y obligatorio (`NOT NULL`).
+   * `numero_control`: matrícula única (`UNIQUE NOT NULL`).
    * `contrasena_cifrada`: resumen criptográfico generado con `bcryptjs`.
    * `genero`: restringido con `CHECK (genero IN ('Mujer', 'Hombre', 'Prefiero no decir'))`. Necesario para aplicar la exclusividad de Raity Violeta.
-   * `es_administrador`: booleano (`FALSE` por defecto) reservado para funciones administrativas futuras.
-   * `activo`: booleano (`TRUE` por defecto).
-   * `fecha_registro`: marca temporal automática.
+   * `es_administrador`, `activo`, `fecha_registro`.
 2. **`vehiculos`:** almacena los autos registrados por los conductores.
-   * `id`, `id_usuario` (`REFERENCES usuarios(id)`), `modelo`, `matricula`, `color`, `numero_asientos` (`CHECK >= 1 AND <= 4`), `foto_vehiculo` (ruta `/subidas/...`), `foto_credencial` (ruta `/subidas/...`).
-3. **`rutas_guardadas`:** guarda recorridos frecuentes con su nombre descriptivo y coordenadas fijas de salida y llegada en La Paz.
-   * `id`, `id_usuario` (`REFERENCES usuarios(id)`), `nombre`, `latitud_origen`, `longitud_origen`, `latitud_destino`, `longitud_destino` (`NUMERIC(9, 6)`).
+   * `id`, `id_usuario` (`REFERENCES usuarios(id)`), `modelo`, `matricula` (`UNIQUE NOT NULL`), `color`, `numero_asientos` (`CHECK >= 1 AND <= 4`), `foto_vehiculo`, `foto_credencial`.
+3. **`rutas_guardadas`:** guarda recorridos frecuentes con su nombre descriptivo y coordenadas geográficas validadas de salida y llegada en La Paz.
+   * `id`, `id_usuario` (`REFERENCES usuarios(id)`), `nombre`, `latitud_origen`, `longitud_origen`, `latitud_destino`, `longitud_destino` (`NUMERIC(9, 6)` con `CHECK` de rango geográfico `[-90, 90]` y `[-180, 180]`).
 4. **`viajes`:** representa cada salida publicada por un conductor.
    * `id`, `id_conductor` (`REFERENCES usuarios`), `id_vehiculo` (`REFERENCES vehiculos`), `id_ruta` (`REFERENCES rutas_guardadas`), `origen`, `destino`, `fecha` (`CURRENT_DATE` por defecto), `hora_salida`, `lugares_totales` (`CHECK 1..4`), `lugares_disponibles` (`CHECK >= 0 AND <= lugares_totales`), `es_violeta` (booleano), `estado` (`CHECK IN ('programado', 'en_curso', 'terminado', 'cancelado')`).
-5. **`reservaciones`:** vincula a cada pasajero con un viaje y controla si su lugar sigue apartado o fue cancelado.
-   * `id`, `id_viaje` (`REFERENCES viajes`), `id_pasajero` (`REFERENCES usuarios`), `fecha_reservacion`, `estado` (`CHECK IN ('activa', 'cancelada')`).
-6. **`calificaciones`:** almacena evaluaciones de 1 a 5 estrellas entre participantes de un viaje.
-   * `id`, `id_viaje`, `id_quien_califica`, `id_calificado`, `puntuacion` (`CHECK >= 1 AND <= 5`), `comentario`.
-7. **`reportes`:** almacena reportes enviados por incidentes en algún viaje.
-   * `id`, `id_viaje`, `id_quien_reporta`, `motivo`, `fecha`.
-8. **`archivos_subidos` (tabla técnica para la nube):** guarda el nombre, tipo MIME y contenido binario (`BYTEA`) de las imágenes subidas para que no se pierdan en servidores *serverless* donde el disco local es temporal.
-9. **`sesiones` (tabla técnica de `connect-pg-simple`):** almacena las sesiones activas (`sid`, `sess`, `expire`) en PostgreSQL para compartir la sesión entre múltiples invocaciones en producción.
+5. **`reservaciones`:** vincula a cada pasajero con un viaje, controla si su lugar sigue activo o cancelado y guarda su ubicación GPS junto con el punto exacto de recogida sobre la ruta.
+   * `id`, `id_viaje` (`REFERENCES viajes`), `id_pasajero` (`REFERENCES usuarios`), `latitud_pasajero`, `longitud_pasajero`, `latitud_recogida`, `longitud_recogida` (`NUMERIC(9, 6)` con `CHECK` de rango geográfico), `distancia_ruta_metros` (`INTEGER CHECK >= 0`), `fuera_de_ruta` (`BOOLEAN NOT NULL DEFAULT FALSE`), `fecha_reservacion`, `estado` (`CHECK IN ('activa', 'cancelada')`).
+6. **`calificaciones`:** almacena evaluaciones entre participantes de un viaje con restricción única por viaje y par emisor/receptor.
+   * `id`, `id_viaje`, `id_quien_califica`, `id_calificado`, `puntuacion` (`dominio_calificacion NOT NULL`), `comentario`, `CONSTRAINT uq_calificacion_unica_viaje UNIQUE (id_viaje, id_quien_califica, id_calificado)`.
+7. **`reportes`:** almacena reportes enviados por incidentes en algún viaje (`CHECK (LENGTH(TRIM(motivo)) >= 3)`).
+8. **`bitacora_auditoria` (tabla de auditoría obligatoria):** registra automáticamente mediante triggers (`fn_registrar_auditoria_raity`) cada `INSERT`, `UPDATE` y `DELETE` sobre `viajes`, `reservaciones` y `calificaciones`, almacenando `fecha_hora`, `tabla_afectada`, `operacion`, `id_registro`, `usuario_bd`, `pid_sesion` y `detalle_evento`.
+9. **`control_marcas_tiempo` (tabla auxiliar de concurrencia):** simula el algoritmo académico de ordenamiento por marcas de tiempo (*Timestamp Ordering*) guardando `recurso`, `valor_actual`, `ultima_marca_lectura` (`R-TS`) y `ultima_marca_escritura` (`W-TS`).
+10. **`archivos_subidos` (tabla técnica para la nube):** guarda el nombre, tipo MIME y contenido binario (`BYTEA`) de las imágenes subidas.
+11. **`sesiones` (tabla técnica de `connect-pg-simple`):** almacena las sesiones activas (`sid`, `sess`, `expire`) en PostgreSQL.
 
 ### Usuarios de prueba precargados (`base-de-datos/datos-de-prueba.sql`)
 
@@ -199,7 +212,7 @@ En el frontend todas las comunicaciones con el backend utilizan `fetch()` con `a
    * El campo de búsqueda (`"Buscar por destino, colonia, conductor..."`) espera `250 ms` (*debounce*) tras dejar de escribir para consultar al servidor por texto (`?busqueda=...`), evitando saturar la red en cada tecla.
    * Incluye filtros rápidos por tema: `Todos`, `Hacia UABCS`, `Santa Fe` y (solo visible si `usuario.genero === 'Mujer'`) `Raity Violeta`.
    * Cada tarjeta renderiza avatar con iniciales, nombre, calificación promedio, insignia **Raity Violeta** cuando aplica, origen -> destino, vehículo, hora de salida, asientos disponibles, minimapa con etiqueta `"Vista ruta GPS"` y el botón contextual (`Reservar Asiento`, `Reservar Asiento (Solo Mujeres)` en violeta, `Ver mi viaje reservado` en verde o `Administrar mi viaje`).
-   * Al pulsar reservar, el cliente ejecuta `POST /api/reservaciones` y redirige a `mi-viaje.html?id=...`.
+   * Al pulsar reservar, el cliente ejecuta `POST /api/reservaciones` y redirige a `mi-viaje.html?id=...&solicitar_gps=1` para solicitar permiso de GPS al pasajero y marcar automáticamente su punto de recogida sobre la ruta.
 
 4. **Publicar un viaje (`publicar.html` + `publicar.js` -> `POST /api/viajes`):**
    * Verifica al entrar si el usuario tiene al menos un vehículo y una ruta guardada; si no, muestra un aviso guiado hacia `registro-vehiculo.html` o `registro-ruta.html`.
@@ -212,11 +225,14 @@ En el frontend todas las comunicaciones con el backend utilizan `fetch()` con `a
    * Muestra abajo el **Historial de Viajes** (`terminado` o `cancelado`) con formato relativo legible (`Hoy`, `Ayer`, `Hace N días`) junto a la fecha corta.
    * Cada viaje del historial incluye el botón **Reportar** (abre modal para elegir motivo y detalle -> `POST /api/viajes/:id/reportar`) y, si el usuario participó como pasajero en un viaje terminado y aún no lo califica, el botón **Calificar Conductor** (abre modal con puntuación 1 a 5 y comentario -> `POST /api/viajes/:id/calificar`).
 
-6. **Mi viaje: vista Conductor vs vista Pasajero (`mi-viaje.html` + `mi-viaje.js`):**
-   * Consulta `GET /api/viajes/:id`, que determina en el servidor si `es_conductor` es verdadero o si existe `id_reservacion_propia`.
-   * Muestra la tarjeta de resumen del viaje, el mapa detallado con marcadores de Salida y Destino, y la lista de **Pasajeros unidos** (`X/Y`).
-   * **Como conductor:** puede pulsar `"Eliminar pasajero"` junto a cada integrante (`DELETE /api/reservaciones/:id` con modal de confirmación), cambiar el estado con `"Iniciar viaje"` (`PUT /api/viajes/:id/iniciar`), luego `"Terminar viaje"` (`PUT /api/viajes/:id/terminar`) o `"Cancelar viaje"` (`PUT /api/viajes/:id/cancelar`, que cancela reservaciones activas).
-   * **Como pasajero:** ve la misma información sin el botón de eliminar compañeros, y abajo dispone del botón rojo `"Salir del viaje"`, que libera su asiento con `DELETE /api/reservaciones/:id`.
+6. **Mi viaje: vista Conductor vs vista Pasajero y Punto de Recogida GPS (`mi-viaje.html` + `mi-viaje.js` + `comun.js`):**
+   * Consulta `GET /api/viajes/:id`, que determina en el servidor si `es_conductor` es verdadero, entrega `id_reservacion_propia` e incluye para cada pasajero `latitud_pasajero`, `longitud_pasajero`, `latitud_recogida`, `longitud_recogida`, `distancia_ruta_metros` y `fuera_de_ruta`.
+   * Muestra la tarjeta de resumen del viaje, el mapa detallado con marcadores de Salida, Destino y Puntos de recogida sobre la ruta (con tramo resaltado hasta el lugar exacto de recogida), la leyenda de simbología y la lista de **Pasajeros unidos** (`X/Y`) con botón `"Ver punto en mapa"`.
+   * **Permiso GPS y proyección obligatoria sobre ruta (sin desvíos):** al entrar tras reservar (`?solicitar_gps=1`) o pulsar `"Compartir mi ubicación actual (GPS)"`, `solicitarPermisoYUbicacionGps()` muestra el diálogo de permiso GPS y consulta `navigator.geolocation.getCurrentPosition`. Luego `calcularPuntoRecogidaEnRuta()` proyecta ortogonalmente la ubicación del pasajero sobre el segmento más cercano de la ruta establecida del conductor (tanto en cliente como validado en servidor en `PUT /api/viajes/:id/punto-recogida` y `PUT /api/reservaciones/:id/ubicacion`), garantizando que el conductor nunca tenga que desviarse.
+   * **Aviso de fuera de ruta (`> 80 m`):** si el pasajero está a más de `80 m` de la ruta (`fuera_de_ruta = TRUE`), se muestra un aviso persistente en `#aviso-fuera-ruta` indicando que debe acercarse al punto de recogida marcado sobre la ruta para poder ser recogido, y en el mapa se traza una línea punteada roja desde su GPS actual hacia su punto de recogida en ruta.
+   * **Visibilidad compartida:** tanto el conductor como el pasajero visualizan el punto de recogida exacto en el mapa, en la ruta actualizada y en el listado de pasajeros.
+   * **Como conductor:** puede pulsar `"Eliminar pasajero"` junto a cada integrante (`DELETE /api/reservaciones/:id` con modal de confirmación), cambiar el estado con `"Iniciar viaje"` (`PUT /api/viajes/:id/iniciar`), luego `"Terminar viaje"` (`PUT /api/viajes/:id/terminar`) o `"Cancelar viaje"` (`PUT /api/viajes/:id/cancelar`).
+   * **Como pasajero:** dispone del botón `"Compartir mi ubicación actual (GPS)"` / `"Actualizar mi ubicación GPS"` y del botón rojo `"Salir del viaje"`.
 
 7. **Perfil (`perfil.html` + `perfil.js` -> `GET /api/usuarios/perfil` y `POST /api/usuarios/cerrar-sesion`):**
    * Muestra avatar con iniciales, punto verde de `"Alumno activo"`, calificación promedio, correo institucional, número de control, número de viajes realizados y kilogramos de CO2 ahorrados.
@@ -362,6 +378,20 @@ async function obtenerGeometriaCalle(latOrigen, lonOrigen, latDestino, lonDestin
 
 Para proteger al usuario ante recargas accidentales o pérdida de señal en campus/carretera, `activarRespaldoFormulario()` escucha eventos `input` y `change` y respalda campos no sensibles en `sessionStorage` (omitiendo contraseñas y archivos), restaurándolos si el usuario vuelve y limpiándolos al completarse el envío en el servidor. Adicionalmente, todos los `await fetch()` están rodeados por `try/catch` y deshabilitan temporalmente el botón de envío (`cambiarEstadoBoton`) para prevenir dobles clics que dupliquen registros.
 
+### Algoritmo 8: Punto de recogida por GPS sobre la ruta sin desvíos (`publico/js/comun.js`, `servidor/rutas/reservaciones.js`, `servidor/rutas/viajes.js`)
+
+**Por qué se decidió así:** el conductor publica un trayecto fijo hacia o desde la UABCS y no debe hacer desvíos fuera de su camino. Cuando el pasajero otorga permiso para acceder al GPS del dispositivo (`solicitarPermisoYUbicacionGps`), el punto de recogida se calcula mediante proyección ortogonal acotada (`t` en `[0, 1]`) sobre cada segmento de la polilínea de la ruta (`proyectarPuntoEnSegmento` + `calcularDistanciaMetros`), tanto en navegador como en el servidor (`calcularRecogidaSobreRuta`).
+
+1. El punto resultante `(latitud_recogida, longitud_recogida)` pertenece estrictamente a la ruta establecida.
+2. Si la distancia geodésica entre el GPS actual del pasajero y su punto proyectado supera `UMBRAL_FUERA_DE_RUTA_METROS = 80` m, se activa `fuera_de_ruta = TRUE` y se muestra un aviso al pasajero para que se acerque al punto de recogida marcado sobre la ruta.
+3. El vértice proyectado se inserta en la polilínea (`insertarPuntoEnPolilineaRuta`), resaltando el tramo hacia la recogida para que tanto conductor como pasajero vean el lugar exacto en `mi-viaje.html`.
+
+```javascript
+const calculo = calcularPuntoRecogidaEnRuta(latPasajero, lonPasajero, puntosCalle);
+// Si distancia_ruta_metros > 80 -> fuera_de_ruta = true (aviso al pasajero)
+// El punto (latitud_recogida, longitud_recogida) siempre queda sobre la polilínea
+```
+
 ---
 
 ## 8. Diseño Mobile First y Responsivo (Unidad III)
@@ -471,3 +501,75 @@ La versión actual entrega operativos los flujos centrales del MVP, el sistema d
 * **PWA (*Progressive Web App*):** aplicación web con `manifest.json` y `service-worker.js` instalable en dispositivos móviles y escritorio.
 * **Serverless (Netlify Functions):** modelo donde el backend se ejecuta bajo demanda sin tener que administrar ni pagar un servidor encendido todo el día.
 * **SQL (*Structured Query Language*):** lenguaje estándar empleado para crear tablas, consultar, insertar y actualizar registros en PostgreSQL.
+
+---
+
+## 13. Proyecto Final Integrador de Base de Datos II (UABCS)
+
+Para cumplir íntegramente con la rúbrica de la materia **Base de Datos II** (Ing. Iván Alexis Cota Espinosa — Unidades de Integridad de Bases de Datos, Transacciones y Recuperación, y Control de Concurrencia en **PostgreSQL + DBeaver**), la base de datos de **Raity** incluye los 7 scripts entregables en `base-de-datos/` (`01_estructura.sql` a `07_validaciones.sql`) además de los scripts de despliegue web sincronizados (`crear-tablas.sql` y `datos-de-prueba.sql`).
+
+### Propuesta breve del problema
+
+* **Nombre y problema:** **Raity** resuelve la falta de coordinación ordenada, trazabilidad y seguridad en los traslados compartidos de estudiantes de la UABCS en La Paz, evitando sobrecupo de vehículos, viajes incompatibles con la modalidad exclusiva femenina (**Raity Violeta**) y desvíos de ruta mediante puntos de recogida GPS proyectados sobre la ruta establecida.
+* **Actores y operaciones:** Estudiantes pasajeros (registro institucional, consulta de viajes, reservación atómica, fijación de punto de recogida GPS, calificación y reporte), estudiantes conductores (registro de vehículo y rutas, publicación y control de ciclo de vida de viajes, visualización de puntos de recogida) y administrador.
+* **Reglas de negocio clave:**
+  1. **Unicidad de identidad y vehículo:** no se permiten dos usuarios con el mismo `correo_institucional` (`@alu.uabcs.mx`) o `numero_control`, dos vehículos con la misma `matricula`, ni dos reservaciones activas del mismo pasajero en un viaje.
+  2. **Validación de dominios y estados:** las calificaciones aceptan únicamente enteros `1..5` (`dominio_calificacion`), `lugares_totales` acepta `1..4`, `lugares_disponibles` está acotado entre `0` y `lugares_totales`, y el estado del viaje sigue `('programado', 'en_curso', 'terminado', 'cancelado')`.
+  3. **Recurso limitado y exclusividad:** nunca puede reservarse un viaje sin asientos disponibles (`lugares_disponibles > 0`), un conductor no puede reservar su propio viaje, los viajes **Raity Violeta** solo aceptan pasajeras con `genero = 'Mujer'`, y la bandera `fuera_de_ruta` se calcula automáticamente si `distancia_ruta_metros > 80`.
+  4. **Operación compuesta y conflicto de concurrencia:** reservar un asiento requiere dos cambios inseparables (`UPDATE viajes` para descontar asiento + `INSERT INTO reservaciones` + registro en `bitacora_auditoria`). Si dos pasajeros reservan el último asiento simultáneamente, la base de datos debe impedir la doble asignación y las actualizaciones perdidas.
+
+### Fase I: Integridad de Bases de Datos
+
+1. **Tipos de integridad aplicados con ejemplos de Raity:**
+   * **Integridad de dominio:** `CREATE DOMAIN dominio_correo_uabcs AS VARCHAR(120) CHECK (VALUE LIKE '%@alu.uabcs.mx')`, `CREATE DOMAIN dominio_calificacion AS INTEGER CHECK (VALUE >= 1 AND VALUE <= 5)`, rangos geográficos (`latitud BETWEEN -90 AND 90`, `longitud BETWEEN -180 AND 180`), `CHECK (distancia_ruta_metros >= 0)` y `CHECK (estado IN ('programado', 'en_curso', 'terminado', 'cancelado'))`.
+   * **Integridad de entidad:** llaves primarias `SERIAL PRIMARY KEY` en todas las tablas (`usuarios`, `vehiculos`, `rutas_guardadas`, `viajes`, `reservaciones`, `calificaciones`, `reportes`, `bitacora_auditoria`, `control_marcas_tiempo`) más restricciones `NOT NULL` y `UNIQUE` (`correo_institucional`, `numero_control`, `vehiculos.matricula`, `uq_calificacion_unica_viaje`).
+   * **Integridad referencial:** llaves foráneas con `REFERENCES ... ON DELETE CASCADE` (ej. `viajes.id_conductor -> usuarios.id`, `viajes.id_vehiculo -> vehiculos.id`, `viajes.id_ruta -> rutas_guardadas.id`, `reservaciones.id_viaje -> viajes.id`, `reservaciones.id_pasajero -> usuarios.id`).
+2. **Consultas de calidad de datos (`07_validaciones.sql`):**
+   * Detección de duplicados potenciales (reservaciones activas repetidas por `(id_viaje, id_pasajero)` y matrículas duplicadas).
+   * Detección de valores faltantes relevantes (reservaciones activas en viajes vigentes que aún no comparten coordenadas GPS de recogida).
+   * Detección de inconsistencias de negocio (desfase entre `viajes.lugares_disponibles` y `lugares_totales - COUNT(reservaciones activas)`).
+3. **Triggers y Procedimientos Almacenados (`03_triggers_procedimientos.sql`):**
+   * **Trigger de regla de negocio (`trg_validar_reservacion_raity` / `fn_validar_reservacion_raity`):** bloquea la fila del viaje con `SELECT ... FOR UPDATE`, impide auto-reservación, valida género en **Raity Violeta**, impide duplicidad activa, impide exceder `lugares_totales` incluso bajo sesiones simultáneas y recalcula `fuera_de_ruta = (distancia_ruta_metros > 80)`.
+   * **Trigger de auditoría (`trg_auditoria_viajes`, `trg_auditoria_reservaciones`, `trg_auditoria_calificaciones` / `fn_registrar_auditoria_raity`):** registra automáticamente cada `INSERT`, `UPDATE` y `DELETE` en `bitacora_auditoria` con fecha/hora, usuario de BD, PID de sesión (`pg_backend_pid()`) y detalle del cambio.
+   * **Procedimientos almacenados:** `sp_reservar_asiento_con_recogida` (reserva atómica con punto GPS opcional) y `sp_actualizar_punto_recogida_gps` (validación geográfica y actualización de recogida sobre ruta).
+
+### Fase II: Transacciones y Recuperación
+
+* **Operaciones compuestas (`04_transacciones.sql`):**
+  * **`COMMIT` (P05):** `BEGIN` descuenta 1 asiento en `viajes` e inserta la reservación con punto de recogida GPS en `reservaciones`, pasando por los estados **activa -> confirmada** y demostrando **Atomicidad, Consistencia, Aislamiento y Durabilidad (ACID)**.
+  * **`ROLLBACK` (P06):** al fallar el segundo paso de la operación compuesta, la transacción entra en estado **fallida/abortada** y `ROLLBACK` revierte el descuento previo de `lugares_disponibles` sin dejar cambios parciales.
+* **Recuperación parcial con `SAVEPOINT` (P07):** tras completar la **Acción A** (publicar nuevo viaje), se fija `SAVEPOINT despues_de_A`, se provoca un fallo controlado en **B** (motivo de reporte inválido), se ejecuta `ROLLBACK TO SAVEPOINT despues_de_A` para conservar **A**, se repite **B** de forma válida (reservación con punto GPS), se ejecuta **C** (descuento de asiento) y se confirma con `COMMIT`.
+* **Bitácora, copia sombra, respaldo lógico y WAL:**
+  * Se consultan al menos 5 eventos reales generados automáticamente en `bitacora_auditoria`.
+  * Se demuestra un error SQL controlado (captura de `division_by_zero`) explicando su diferencia frente a una falla del sistema (corte de energía / caída de proceso, recuperada automáticamente mediante *redo/undo* del WAL al reiniciar) y una falla del medio de almacenamiento (daño físico de disco, que requiere respaldo base + WAL archivados).
+  * Se simula didácticamente una copia sombra mediante `copia_sombra_viajes` para recuperar datos alterados.
+  * **WAL vs Bitácora de auditoría:** el **WAL (*Write-Ahead Log*)** de PostgreSQL es una bitácora física a nivel de páginas de disco que garantiza durabilidad y recuperación ante caídas (*crash recovery*) antes de escribir a los archivos de datos; en cambio, `bitacora_auditoria` es una bitácora lógica de negocio orientada a trazabilidad funcional de usuarios y eventos.
+
+### Fase III: Control de Concurrencia (`05_sesion_A.sql` y `06_sesion_B.sql`)
+
+Las pruebas se ejecutan en dos conexiones independientes en DBeaver comprobando identificadores distintos con `SELECT pg_backend_pid();`:
+
+1. **Lectura no repetible (Reto 7.1):** bajo `READ COMMITTED`, Sesión A observa el cambio confirmado por Sesión B dentro de la misma transacción; bajo `REPEATABLE READ`, A conserva su instantánea inicial.
+2. **Lectura fantasma (Reto 7.2):** bajo `READ COMMITTED`, el conteo de reservaciones cambia tras el `INSERT` + `COMMIT` de B; bajo `REPEATABLE READ`, PostgreSQL evita fantasmas manteniendo el conteo constante.
+3. **Actualización perdida y corrección (Reto 7.3):** dos sesiones leen `lugares_disponibles = 2` y escriben `1` sobrescribiendo un descuento; se corrige mediante `SELECT ... FOR UPDATE` y actualización atómica `lugares_disponibles = lugares_disponibles - 1`.
+4. **Lectura sucia (Reto 7.4):** Sesión B modifica sin confirmar; Sesión A lee bajo `READ UNCOMMITTED` y comprueba que PostgreSQL actúa como `READ COMMITTED` sin exponer datos sucios.
+5. **Bloqueos y Deadlocks (Reto 8):** demostración de espera y liberación con `SELECT ... FOR UPDATE` (P10), generación controlada de interbloqueo (`40P01`, P11) cruzando el orden de bloqueo entre los viajes `2` y `5`, y prevención mediante adquisición en orden ascendente consistente (`id = 2 -> id = 5`).
+6. **Niveles de aislamiento y Timestamp Ordering (Reto 9):** comparación entre `READ COMMITTED`, `REPEATABLE READ` y `SERIALIZABLE` (conflicto `40001` cuando hay dependencias de lectura/escritura), más simulación académica de ordenamiento por marcas de tiempo mediante `control_marcas_tiempo` y `fn_aplicar_operacion_marca_tiempo` (P12).
+
+### Matriz mínima de 12 casos de prueba (P01–P12)
+
+| ID | Escenario en Raity | Script / SQL principal | Resultado esperado |
+| :--- | :--- | :--- | :--- |
+| **P01** | Duplicar correo institucional `@alu.uabcs.mx` ya registrado | `07_validaciones.sql` (`INSERT INTO usuarios` duplicado) | Rechazo por `UNIQUE` (`SQLSTATE 23505`) |
+| **P02** | Correo externo `@gmail.com` o calificación `9` fuera de rango `1..5` | `07_validaciones.sql` (`dominio_correo_uabcs`, `dominio_calificacion`) | Rechazo por `CHECK` / dominio (`SQLSTATE 23514`) |
+| **P03** | Reservar en un `id_viaje = 99999` inexistente | `07_validaciones.sql` (`INSERT INTO reservaciones`) | Rechazo por `FOREIGN KEY` (`SQLSTATE 23503`) |
+| **P04** | Hombre intenta reservar Raity Violeta, auto-reserva de conductor o sobrecupo | `03_triggers_procedimientos.sql` y `07_validaciones.sql` | Operación rechazada por `trg_validar_reservacion_raity` |
+| **P05** | Reservar asiento y guardar punto de recogida GPS descontando lugar en `viajes` | `04_transacciones.sql` (`BEGIN ... COMMIT`) | `COMMIT` conserva ambos cambios y audita en bitácora |
+| **P06** | Falla el paso 2 tras descontar un lugar en `viajes` | `04_transacciones.sql` (`BEGIN ... ROLLBACK`) | `ROLLBACK` evita cambios parciales en `viajes` |
+| **P07** | Publicar viaje (A), error controlado en reporte (B), `ROLLBACK TO SAVEPOINT`, reserva válida (B) y descuento (C) | `04_transacciones.sql` (`SAVEPOINT despues_de_A`) | `SAVEPOINT` conserva A, descarta error y confirma A+B+C |
+| **P08** | Respaldo lógico con `pg_dump` y restauración en `raity_pruebas_restauracion` | `04_transacciones.sql` + `pg_dump`/`pg_restore` | Recuperación verificada comparando conteos de tablas |
+| **P09** | Lecturas concurrentes (`READ COMMITTED` vs `REPEATABLE READ`) y actualización perdida | `05_sesion_A.sql` y `06_sesion_B.sql` (`[A1..A11]`, `[B1..B6]`) | Resultado acorde al nivel de aislamiento y corrección con bloqueo |
+| **P10** | Sesión A bloquea viaje 2 con `SELECT ... FOR UPDATE` y B intenta actualizarlo | `05_sesion_A.sql` `[A13..A14]` y `06_sesion_B.sql` `[B9]` | Espera de Sesión B y liberación tras `COMMIT` de A |
+| **P11** | Bloqueo cruzado viajes `2` y `5` (deadlock) vs orden ascendente consistente | `05_sesion_A.sql` `[A15..A17]` y `06_sesion_B.sql` `[B10..B12]` | Deadlock (`40P01`) detectado/abortado y prevenido en orden `2 -> 5` |
+| **P12** | Operación concurrente `SERIALIZABLE` y rechazo de escritura atrasada (`TS=115 < W-TS=120`) | `05_sesion_A.sql` `[A18..A21]` y `06_sesion_B.sql` `[B13..B14]` | Conflicto `40001` y decisión verificable en `control_marcas_tiempo` |
+

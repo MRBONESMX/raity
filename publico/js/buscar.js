@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            window.location.href = '/mi-viaje.html?id=' + idViaje;
+            window.location.href = '/mi-viaje.html?id=' + idViaje + '&solicitar_gps=1';
         } catch (error) {
             mostrarMensaje('aviso-buscar', 'Error de conexión al intentar reservar. Verifica tu internet e intenta de nuevo.');
             cambiarEstadoBoton(botonPresionado, false);
